@@ -20,31 +20,38 @@ public class TrackerMessage {
 	
 	public TrackerMessage() {}
 	
-	public TrackerMessage(byte[] buffer) {
-		parseBuffer(buffer);
+	public TrackerMessage(byte[] buffer, int length) {
+		parseBuffer(buffer, length);
 	}
 	
-	public void parseBuffer(byte[] buffer) {
-		ByteBuffer bb = ByteBuffer.wrap(buffer);
-		bb.order(ByteOrder.LITTLE_ENDIAN);
-		this.mSampleCount = bb.get(1);
-		this.mTimestamp = decodeUInt16(bb, 2);
-		this.mLastCommandId = decodeUInt16(bb, 4);
-		this.mTemperature = decodeSInt16(bb, 6) * TEMPERATURE_SCALE;
-		
-		int iterationCount = Math.min(3, this.mSampleCount);
-		for(int i=0; i < iterationCount; i++) {
-			this.samples[i] = new TrackerData();
-			this.samples[i].mAcc = unpackSensor(buffer, 8 + 16 * i).scale(SENSOR_SCALE);
-			this.samples[i].mGyro = unpackSensor(buffer, 16 + 16 * i).scale(SENSOR_SCALE);
+	public boolean parseBuffer(byte[] buffer, int length) {
+		if(length == 62) {
+
+			ByteBuffer bb = ByteBuffer.wrap(buffer);
+			bb.order(ByteOrder.LITTLE_ENDIAN);
+			this.mSampleCount = bb.get(1);
+			this.mTimestamp = decodeUInt16(bb, 2);
+			this.mLastCommandId = decodeUInt16(bb, 4);
+			this.mTemperature = decodeSInt16(bb, 6) * TEMPERATURE_SCALE;
+			
+			int iterationCount = Math.min(3, this.mSampleCount);
+			for(int i=0; i < iterationCount; i++) {
+				this.samples[i] = new TrackerData();
+				this.samples[i].mAcc = unpackSensor(buffer, 8 + 16 * i).scale(SENSOR_SCALE);
+				this.samples[i].mGyro = unpackSensor(buffer, 16 + 16 * i).scale(SENSOR_SCALE);
+			}
+			
+			this.mMag = new Vector3(
+					decodeSInt16(bb, 56),
+					decodeSInt16(bb, 58),
+					decodeSInt16(bb, 60)
+			).scale(SENSOR_SCALE);
+			
+			return true;
+			
+		} else {
+			return false;
 		}
-		
-		this.mMag = new Vector3(
-				decodeSInt16(bb, 56),
-				decodeSInt16(bb, 58),
-				decodeSInt16(bb, 60)
-		).scale(SENSOR_SCALE);
-		
 	}
 	
 	@Override

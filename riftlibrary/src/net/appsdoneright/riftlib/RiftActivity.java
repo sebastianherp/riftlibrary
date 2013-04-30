@@ -1,5 +1,6 @@
 package net.appsdoneright.riftlib;
 
+import net.appsdoneright.riftlib.util.Quaternion;
 import net.appsdoneright.riftlib.util.RiftHandler;
 import android.app.Activity;
 import android.content.Intent;
@@ -41,4 +42,5 @@ public class RiftActivity extends Activity {
 	protected void setRiftHandler(RiftHandler handler) {
 		mRift.setRiftHandler(handler);
 	}
+
 }

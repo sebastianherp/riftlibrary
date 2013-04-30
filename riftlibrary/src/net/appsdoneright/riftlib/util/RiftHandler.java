@@ -1,6 +1,6 @@
 package net.appsdoneright.riftlib.util;
 
 public interface RiftHandler {
-	void onDataReceived(byte[] buffer, int length);
+	void onDataReceived(Quaternion q);
 	void onKeepAlive(boolean result);
 }

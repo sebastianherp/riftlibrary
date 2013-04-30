@@ -8,8 +8,10 @@ import java.util.Iterator;
 import net.appsdoneright.oculusrifttest.util.SystemUiHider;
 import net.appsdoneright.riftlib.RiftActivity;
 import net.appsdoneright.riftlib.RiftConnection;
+import net.appsdoneright.riftlib.util.Quaternion;
 import net.appsdoneright.riftlib.util.RiftHandler;
 import net.appsdoneright.riftlib.util.TrackerMessage;
+import net.appsdoneright.riftlib.util.Vector3;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -216,59 +218,22 @@ public class HomeActivity extends RiftActivity {
 	private final RiftHandler mRiftHandler = new RiftHandler() {
 		private int counter = 0;
 		private boolean keepAliveResult = false;
-		private TrackerMessage msg = new TrackerMessage();
-		private static final float timeUnit = (1.0f / 1000.0f);
 		
 		@Override
-		public void onDataReceived(byte[] buffer, final int length) {
-			if(length == 62) {
-				msg.parseBuffer(buffer);
-				
-				MessageBodyFrame sensors = new MessageBodyFrame();
-				int iterations = msg.mSampleCount;
-				if(msg.mSampleCount > 3) {
-					iterations = 3;
-					sensors.mTimeDelta = (msg.mSampleCount - 2) * timeUnit;
-				} else {
-					sensors.mTimeDelta = timeUnit;
-				}
-				
-				for(int i=0; i < iterations; i++) {
-					sensors.mAcceleration[0] = msg.samples[i].mAcc.x;
-					sensors.mAcceleration[1] = msg.samples[i].mAcc.y;
-					sensors.mAcceleration[2] = msg.samples[i].mAcc.z;
-					sensors.mRotationRate[0] = msg.samples[i].mGyro.x;
-					sensors.mRotationRate[1] = msg.samples[i].mGyro.y;
-					sensors.mRotationRate[2] = msg.samples[i].mGyro.z;
-					sensors.mMagneticField[0] = msg.mMag.x;
-					sensors.mMagneticField[1] = msg.mMag.y;
-					sensors.mMagneticField[2] = msg.mMag.z;
-					
-					sensors.mTemperature = msg.mTemperature;
-					
-					//updateOrientation(sensors);
-					
-					sensors.mTimeDelta = timeUnit;					
-				}
-				
-			}
-			
-			
-			
+		public void onDataReceived(final Quaternion q) {
 			counter++;
+			
+			
+			
 			if(counter % 100 == 0) {
 				Log.i(TAG, counter + " packets");
-				final String message = msg.toString();
+				final Vector3 angles = q.toAngles().scale((float)(180/Math.PI));
 				
 				runOnUiThread(new Runnable() {
 					
 					@Override
 					public void run() {
-	
-						
-						mLogView.setText(counter + ". bytes received: " + length + " (" + keepAliveResult + ")\n" + 
-								message
-						);
+						mLogView.setText(counter + " (" + keepAliveResult + ")\n" + angles);
 					}
 				});
 			}

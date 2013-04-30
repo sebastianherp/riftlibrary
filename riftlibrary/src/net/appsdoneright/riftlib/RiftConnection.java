@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import net.appsdoneright.riftlib.util.RiftHandler;
+import net.appsdoneright.riftlib.util.TrackerMessage;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -34,6 +35,7 @@ public class RiftConnection {
 	private static final Object[] lock = new Object[]{};
 	private boolean mStopThread = false;
 	
+	private RiftOrientation mRiftOrientation = new RiftOrientation();
 	private RiftHandler mRiftHandler = null;
 	private Context mContext;
 	
@@ -91,6 +93,10 @@ public class RiftConnection {
 		} catch (Exception e) {
 			// ignore
 		}
+	}
+	
+	public RiftOrientation getOrientation() {
+		return mRiftOrientation;
 	}
 	
 	private void startCommunication(UsbDevice device) {
@@ -193,11 +199,18 @@ public class RiftConnection {
 			UsbEndpoint mEndpointIN = mUsbInterface.getEndpoint(0); // endpoint 0 on interface 0 is the only one
 			int bufferSize = mEndpointIN.getMaxPacketSize();
 			byte buffer[] = new byte[256];
+			TrackerMessage msg = new TrackerMessage();
 
 			for(;;) { // the loop
 				int receivedBytes = mConnection.bulkTransfer(mEndpointIN, buffer, bufferSize, 100);
-				if(receivedBytes > 0 && mRiftHandler != null)
-					mRiftHandler.onDataReceived(buffer, receivedBytes);
+				
+				if(msg.parseBuffer(buffer, receivedBytes)) {
+					mRiftOrientation.updateOrientation(msg);
+					if(mRiftHandler != null)
+						mRiftHandler.onDataReceived(mRiftOrientation.getOrientation());					
+				}
+				
+				
 				
 				long now = System.currentTimeMillis();
 				if(nextKeepAlive < now) {
