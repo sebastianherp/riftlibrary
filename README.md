@@ -17,6 +17,13 @@ To use the library in your application you need to modify your activity in `Andr
 		
 I also recommend setting `android:launchMode="singleTask"`
 
+Then put a file `device_filter.xml` in `res/xml/` with the following content:
+
+	<?xml version="1.0" encoding="utf-8"?>
+	<resources>
+		<usb-device vendor-id="10291" product-id="0001" />
+	</resources>
+
 As the libary currently sets `android:minSdkVersion="12"` so should your application.
 
 Usage
