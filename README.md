@@ -23,3 +23,16 @@ Usage
 -----
 
 TBD
+
+Debugging
+---------
+
+Most devices will only have a single USB port so you can't debug over USB and use the Rift at the same time. Luckily you can switch to 
+TCP/IP with the following commands while using USB connection(replace IP with your device IP):
+	
+	adb tcpip 5555
+	adb connect 192.168.1.2:5555
+	
+You can now connect the Rift instead and still use Eclipse to push new APKs and debug the app.
+
+Switch back to USB with `adb usb`
