@@ -200,20 +200,25 @@ public class RiftConnection {
 			int bufferSize = mEndpointIN.getMaxPacketSize();
 			byte buffer[] = new byte[256];
 			TrackerMessage msg = new TrackerMessage();
-
+			int msgCounter = 0;
+			int frequency = 0;
+			
 			for(;;) { // the loop
 				int receivedBytes = mConnection.bulkTransfer(mEndpointIN, buffer, bufferSize, 100);
 				
 				if(msg.parseBuffer(buffer, receivedBytes)) {
+					msgCounter += msg.mSampleCount;
 					mRiftOrientation.updateOrientation(msg);
 					if(mRiftHandler != null)
-						mRiftHandler.onDataReceived(mRiftOrientation.getOrientation());					
+						mRiftHandler.onDataReceived(mRiftOrientation.getOrientation(), frequency);					
 				}
 				
 				
 				
 				long now = System.currentTimeMillis();
 				if(nextKeepAlive < now) {
+					frequency = msgCounter / 3;
+					msgCounter = 0;
 					boolean res = sendKeepAlive(10000, mConnection);
 					if(mRiftHandler != null)
 						mRiftHandler.onKeepAlive(res);

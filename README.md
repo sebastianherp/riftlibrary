@@ -17,7 +17,7 @@ To use the library in your application you need to modify your activity in `Andr
 		
 I also recommend setting `android:launchMode="singleTask"`
 
-As the libary currently sets `android:minSdkVersion="12"`so should your application.
+As the libary currently sets `android:minSdkVersion="12"` so should your application.
 
 Usage
 -----

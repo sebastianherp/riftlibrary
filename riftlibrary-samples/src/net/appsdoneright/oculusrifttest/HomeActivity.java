@@ -220,20 +220,20 @@ public class HomeActivity extends RiftActivity {
 		private boolean keepAliveResult = false;
 		
 		@Override
-		public void onDataReceived(final Quaternion q) {
+		public void onDataReceived(final Quaternion q, final int frequency) {
 			counter++;
 			
 			
 			
-			if(counter % 100 == 0) {
-				Log.i(TAG, counter + " packets");
+			if(counter % 25 == 0) {
+				//Log.i(TAG, counter + " packets");
 				final Vector3 angles = q.toAngles().scale((float)(180/Math.PI));
 				
 				runOnUiThread(new Runnable() {
 					
 					@Override
 					public void run() {
-						mLogView.setText(counter + " (" + keepAliveResult + ")\n" + angles);
+						mLogView.setText(counter + " messages received\n" + frequency + "Hz\n" + angles);
 					}
 				});
 			}
