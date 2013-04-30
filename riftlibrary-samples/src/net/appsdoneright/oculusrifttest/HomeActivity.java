@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import net.appsdoneright.oculusrifttest.util.SystemUiHider;
+import net.appsdoneright.riftlib.RiftActivity;
 import net.appsdoneright.riftlib.RiftConnection;
 import net.appsdoneright.riftlib.util.RiftHandler;
 import net.appsdoneright.riftlib.util.TrackerMessage;
@@ -38,7 +39,7 @@ import android.widget.Toast;
  * 
  * @see SystemUiHider
  */
-public class HomeActivity extends Activity {
+public class HomeActivity extends RiftActivity {
 	private static final String TAG = "HomeActivity";
 	
 	
@@ -72,14 +73,11 @@ public class HomeActivity extends Activity {
 	
 	private TextView mLogView;
 	
-	private RiftConnection mRift;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		mRift = new RiftConnection(getApplicationContext());
-		mRift.setRiftHandler(mRiftHandler);
+		
+		setRiftHandler(mRiftHandler);
 		
 		setContentView(R.layout.activity_home);
 
@@ -154,26 +152,7 @@ public class HomeActivity extends Activity {
 		mLogView = (TextView) findViewById(R.id.textViewLog);
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
 
-		mRift.connectIntent(getIntent());
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		mRift.disconnect();
-	}
-	
-	
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		setIntent(intent);
-	}
 	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -220,7 +199,7 @@ public class HomeActivity extends Activity {
 
 	
 	public void handleClick(View v) {
-		mRift.connect(null);
+		connectRift();
 	}
 	
 
