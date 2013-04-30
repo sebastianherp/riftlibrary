@@ -1,0 +1,7 @@
+# eclipse project data #
+##################
+.metadata/*
+riftlibrary/bin/*
+riftlibrary/gen/*
+riftlibrary-samples/bin/*
+riftlibrary-samples/gen/*
