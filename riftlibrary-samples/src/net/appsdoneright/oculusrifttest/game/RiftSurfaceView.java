@@ -67,40 +67,38 @@ public class RiftSurfaceView extends GLSurfaceView {
         switch (action) {
             case MotionEvent.ACTION_MOVE:
 
-                float dx, dy;
+                float dx = 0, dy = 0, x = 0, y = 0;
+                boolean processTouch = false;
 
                 for(int i=0; i < ev.getPointerCount(); i++) {
                 	pointerId = ev.getPointerId(i);
                 	if(pointerId == 0) {
                 		dx = x1 - mPreviousX1;
                 		dy = y1 - mPreviousY1;
-                		if (x1 < getWidth() / 2) {
-                        	// first pointer in left half
-                        	mRenderer.mdPosY += (dx / 100f / SCREEN_DENSITY);
-                        	mRenderer.mdPosX += (dy / 100f / SCREEN_DENSITY);
-                		} else {
-                			// first pointer in right half
-                        	if (y1 < getHeight() / 2) {
-                        		mRenderer.mIPD += (dx / 1000f / SCREEN_DENSITY);
-                        	} else {
-                        		mRenderer.mdAngle += (dx / 20f / SCREEN_DENSITY);
-                        	}
-                		}
+                		x = x1;
+                		y = y1;
+                		processTouch = true;
                 	}
                 	if(pointerId == 1) {
                 		dx = x2 - mPreviousX2;
                 		dy = y2 - mPreviousY2;
-                		if (x2 < getWidth() / 2) {
-                        	// first pointer in left half
+                		x = x2;
+                		y = y2;
+                		processTouch = true;
+                	}
+                	if(processTouch) {
+                		if (x < getWidth() / 2) {
+                        	// pointer in left half
                         	mRenderer.mdPosY += (dx / 100f * SCREEN_DENSITY);
                         	mRenderer.mdPosX += (dy / 100f * SCREEN_DENSITY);
                 		} else {
-                			// first pointer in right half
-                        	if (y2 < getHeight() / 2) {
+                			// pointer in right half
+                        	if (y < getHeight() / 2) {
                         		mRenderer.mIPD += (dx / 1000f * SCREEN_DENSITY);
                         	} else {
-                        		mRenderer.mdAngle += (dx / 20f * SCREEN_DENSITY);
+                        		mRenderer.mdAngle += (dx / 10f * SCREEN_DENSITY);
                         	}
+                        	mRenderer.mFOV += (dy / 10f / SCREEN_DENSITY);
                 		}
                 	}
                 }

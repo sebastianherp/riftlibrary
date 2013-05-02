@@ -22,8 +22,10 @@ public class RiftRenderer implements Renderer, RiftHandler {
     private static final boolean D = true;
     
     private static final float SIZE_WORLD = 40f; // in meter
-    private static final float SIZE_PLAYER = 1f; // distance to wall where movement should stop
-    private static final float FOV = 45f; // distance to wall where movement should stop
+    private static final float PLAYER_WIDTH = 1f; // distance to wall where movement should stop
+    private static final float PLAYER_EYE_HEIGHT = 1.83f; // eye height
+    private static final float PLAYER_IPD = 0.227f; // IPD
+    private static final float FOV = 42f; // distance to wall where movement should stop
     
     private Shapes mRoom = new Shapes();
     private Shapes mCube = new Shapes();
@@ -32,11 +34,13 @@ public class RiftRenderer implements Renderer, RiftHandler {
     private RiftCamera mCamera;
     
     private int mHalfWidth, mHeight;
+    private float mRatio;
 
     private final float[] mProjMatrixLeft = new float[16];
     private final float[] mProjMatrixRight = new float[16];
 
     // Declare as volatile because we are updating it from another thread
+    public volatile float mFOV = FOV;
     public volatile float mdAngle;
     public volatile float mdPosX = 0;
     public volatile float mdPosY = 0;
@@ -72,6 +76,8 @@ public class RiftRenderer implements Renderer, RiftHandler {
     	// clear background
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
+        mCamera.setFOV(mFOV, mRatio);
+        
         movePlayer();
         updateScene();
         
@@ -79,7 +85,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
         // view for left eye
        	GLES20.glViewport(0, 0, mHalfWidth, mHeight);
         // draw scene
-       	drawScene(mCamera.mVMatrixLeft, mProjMatrixLeft);
+       	drawScene(mCamera.mVMatrixLeft, mCamera.mProjMatrix);
         // flush
         GLES20.glFlush();
         
@@ -87,12 +93,13 @@ public class RiftRenderer implements Renderer, RiftHandler {
         // view for right eye
        	GLES20.glViewport(mHalfWidth, 0, mHalfWidth, mHeight);
     	// draw scene
-       	drawScene(mCamera.mVMatrixRight, mProjMatrixRight);
+       	drawScene(mCamera.mVMatrixRight, mCamera.mProjMatrix);
         // flush
         GLES20.glFlush();
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		if(D) Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + ", IPD: " + mCamera.getIPD());
+    		if(D) Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + 
+    				", IPD: " + mCamera.getIPD() + ", FOV: " + mFOV);
     		frameCounter = 0;
     		frameCheckTime += 1000;
     	}
@@ -107,13 +114,14 @@ public class RiftRenderer implements Renderer, RiftHandler {
         mCamera.mPosZ += cosAngle * mdPosX + singAngle * mdPosY;
         mCamera.mPosX += cosAngle * mdPosY - singAngle * mdPosX;
         mCamera.setIPD(mIPD);
-
+        mCamera.setHeadOrientation(mQuaternion);
+        
         mdAngle = 0;
         mdPosX = 0;
         mdPosY = 0;
         
     	// collision with room walls?
-    	float border = SIZE_WORLD/2 - SIZE_PLAYER;
+    	float border = SIZE_WORLD/2 - PLAYER_WIDTH;
     	mCamera.mPosZ = Math.min(border, Math.max(-border, mCamera.mPosZ));
     	mCamera.mPosX = Math.min(border, Math.max(-border, mCamera.mPosX));
 
@@ -148,49 +156,22 @@ public class RiftRenderer implements Renderer, RiftHandler {
         // such as screen rotation
         //GLES20.glViewport(0, 0, width, height);
 
-        float ratio = (float) mHalfWidth / height;
+        mRatio = (float) mHalfWidth / height;
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         //Matrix.frustumM(mProjMatrixLeft, 0, -ratio, ratio, -1, 1, 1, 10);
         //Matrix.frustumM(mProjMatrixRight, 0, -ratio, ratio, -1, 1, 1, 10);
         
-        perspectiveM(mProjMatrixLeft, 0, 45.0f, ratio, 0.1f, 150);
-        perspectiveM(mProjMatrixRight, 0, 45.0f, ratio, 0.1f, 150);
+        //perspectiveM(mProjMatrixLeft, 0, FOV, ratio, 0.1f, 150);
+        //perspectiveM(mProjMatrixRight, 0, FOV, ratio, 0.1f, 150);
         
         frameCheckTime = System.currentTimeMillis() + 1000;;
 
     }
     
    
-    public static void perspectiveM(float[] projMatrix, int offset, float fovY, float aspect, float zNear, float zFar)
-    {
-        fovY = (float) ((fovY /180.0) * Math.PI); // degrees to radians
-        float g = (float) (1 / Math.tan(fovY / 2));
-
-        for(int i=0; i<16; i++) {
-            switch (i) {
-
-            case 0:
-                projMatrix[i] = g / aspect;
-                break;
-            case 5:
-                projMatrix[i] = g;
-                break;
-            case 10:
-                projMatrix[i] = (zFar + zNear)/(zNear - zFar);
-                break;
-            case 11:
-                projMatrix[i] = -1.0f;
-                break;
-            case 14:
-                projMatrix[i] = (2 * zFar * zNear)/(zNear - zFar);
-                break;
-            default:
-                projMatrix[i] = 0.0f;
-            }
-        }
-    }
+    
 
     public static int loadShader(int type, String shaderCode){
 
