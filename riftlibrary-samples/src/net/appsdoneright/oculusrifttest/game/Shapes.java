@@ -49,134 +49,145 @@ public class Shapes {
 		"	gl_FragColor = textureCube(sTexture, vNormal);	\n" +
 		//"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n" +
 		"}							\n";
+
+	public Shapes genSkyBox(float scale) {
+		mTextureId = createSkyTextureCubemap();
+		return genCube(scale);
+	}
 	
-	public Shapes genCube(float scale)
-    {
-            int i;
-            int numVertices = 24;
-            int numIndices = 36;
-                       
-            float[] cubeVerts =
-               {
-                  -0.5f, -0.5f, -0.5f,
-                  -0.5f, -0.5f,  0.5f,
-                  0.5f, -0.5f,  0.5f,
-                  0.5f, -0.5f, -0.5f,
-                  -0.5f,  0.5f, -0.5f,
-                  -0.5f,  0.5f,  0.5f,
-                  0.5f,  0.5f,  0.5f,
-                  0.5f,  0.5f, -0.5f,
-                  -0.5f, -0.5f, -0.5f,
-                  -0.5f,  0.5f, -0.5f,
-                  0.5f,  0.5f, -0.5f,
-                  0.5f, -0.5f, -0.5f,
-                  -0.5f, -0.5f, 0.5f,
-                  -0.5f,  0.5f, 0.5f,
-                  0.5f,  0.5f, 0.5f, 
-                  0.5f, -0.5f, 0.5f,
-                  -0.5f, -0.5f, -0.5f,
-                  -0.5f, -0.5f,  0.5f,
-                  -0.5f,  0.5f,  0.5f,
-                  -0.5f,  0.5f, -0.5f,
-                  0.5f, -0.5f, -0.5f,
-                  0.5f, -0.5f,  0.5f,
-                  0.5f,  0.5f,  0.5f,
-                  0.5f,  0.5f, -0.5f,
-               };
+	public Shapes genColorCube(float scale) {
+		mTextureId = createSimpleTextureCubemap();
+		return genCube(scale);
+	}
+    
+	
+	private Shapes genCube(float scale) {
+        int i;
+        int numVertices = 24;
+        int numIndices = 36;
+                   
+        float[] cubeVerts =
+           {
+              -0.5f, -0.5f, -0.5f,
+              -0.5f, -0.5f,  0.5f,
+              0.5f, -0.5f,  0.5f,
+              0.5f, -0.5f, -0.5f,
+              -0.5f,  0.5f, -0.5f,
+              -0.5f,  0.5f,  0.5f,
+              0.5f,  0.5f,  0.5f,
+              0.5f,  0.5f, -0.5f,
+              -0.5f, -0.5f, -0.5f,
+              -0.5f,  0.5f, -0.5f,
+              0.5f,  0.5f, -0.5f,
+              0.5f, -0.5f, -0.5f,
+              -0.5f, -0.5f, 0.5f,
+              -0.5f,  0.5f, 0.5f,
+              0.5f,  0.5f, 0.5f, 
+              0.5f, -0.5f, 0.5f,
+              -0.5f, -0.5f, -0.5f,
+              -0.5f, -0.5f,  0.5f,
+              -0.5f,  0.5f,  0.5f,
+              -0.5f,  0.5f, -0.5f,
+              0.5f, -0.5f, -0.5f,
+              0.5f, -0.5f,  0.5f,
+              0.5f,  0.5f,  0.5f,
+              0.5f,  0.5f, -0.5f,
+           };
 
-            float[] cubeNormals =
-               {
-                  0.0f, -1.0f, 0.0f,
-                  0.0f, -1.0f, 0.0f,
-                  0.0f, -1.0f, 0.0f,
-                  0.0f, -1.0f, 0.0f,
-                  0.0f, 1.0f, 0.0f,
-                  0.0f, 1.0f, 0.0f,
-                  0.0f, 1.0f, 0.0f,
-                  0.0f, 1.0f, 0.0f,
-                  0.0f, 0.0f, -1.0f,
-                  0.0f, 0.0f, -1.0f,
-                  0.0f, 0.0f, -1.0f,
-                  0.0f, 0.0f, -1.0f,
-                  0.0f, 0.0f, 1.0f,
-                  0.0f, 0.0f, 1.0f,
-                  0.0f, 0.0f, 1.0f,
-                  0.0f, 0.0f, 1.0f,
-                  -1.0f, 0.0f, 0.0f,
-                  -1.0f, 0.0f, 0.0f,
-                  -1.0f, 0.0f, 0.0f,
-                  -1.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 0.0f,
-                  1.0f, 0.0f, 0.0f,
-               };
+        float[] cubeNormals =
+           {
+              0.0f, -1.0f, 0.0f,
+              0.0f, -1.0f, 0.0f,
+              0.0f, -1.0f, 0.0f,
+              0.0f, -1.0f, 0.0f,
+              0.0f, 1.0f, 0.0f,
+              0.0f, 1.0f, 0.0f,
+              0.0f, 1.0f, 0.0f,
+              0.0f, 1.0f, 0.0f,
+              0.0f, 0.0f, -1.0f,
+              0.0f, 0.0f, -1.0f,
+              0.0f, 0.0f, -1.0f,
+              0.0f, 0.0f, -1.0f,
+              0.0f, 0.0f, 1.0f,
+              0.0f, 0.0f, 1.0f,
+              0.0f, 0.0f, 1.0f,
+              0.0f, 0.0f, 1.0f,
+              -1.0f, 0.0f, 0.0f,
+              -1.0f, 0.0f, 0.0f,
+              -1.0f, 0.0f, 0.0f,
+              -1.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 0.0f,
+           };
 
-            float[] cubeTex =
-               {
-                  0.0f, 0.0f,
-                  0.0f, 1.0f,
-                  1.0f, 1.0f,
-                  1.0f, 0.0f,
-                  1.0f, 0.0f,
-                  1.0f, 1.0f,
-                  0.0f, 1.0f,
-                  0.0f, 0.0f,
-                  0.0f, 0.0f,
-                  0.0f, 1.0f,
-                  1.0f, 1.0f,
-                  1.0f, 0.0f,
-                  0.0f, 0.0f,
-                  0.0f, 1.0f,
-                  1.0f, 1.0f,
-                  1.0f, 0.0f,
-                  0.0f, 0.0f,
-                  0.0f, 1.0f,
-                  1.0f, 1.0f,
-                  1.0f, 0.0f,
-                  0.0f, 0.0f,
-                  0.0f, 1.0f,
-                  1.0f, 1.0f,
-                  1.0f, 0.0f,
-               };
-                       
-                      
-            // Allocate memory for buffers
-            mVertices = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-            mNormals = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-            mTexCoords = ByteBuffer.allocateDirect(numVertices * 2 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-            mIndices = ByteBuffer.allocateDirect(numIndices * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
+        float[] cubeTex =
+           {
+              0.0f, 0.0f,
+              0.0f, 1.0f,
+              1.0f, 1.0f,
+              1.0f, 0.0f,
+              1.0f, 0.0f,
+              1.0f, 1.0f,
+              0.0f, 1.0f,
+              0.0f, 0.0f,
+              0.0f, 0.0f,
+              0.0f, 1.0f,
+              1.0f, 1.0f,
+              1.0f, 0.0f,
+              0.0f, 0.0f,
+              0.0f, 1.0f,
+              1.0f, 1.0f,
+              1.0f, 0.0f,
+              0.0f, 0.0f,
+              0.0f, 1.0f,
+              1.0f, 1.0f,
+              1.0f, 0.0f,
+              0.0f, 0.0f,
+              0.0f, 1.0f,
+              1.0f, 1.0f,
+              1.0f, 0.0f,
+           };
+                   
+                  
+        // Allocate memory for buffers
+        mVertices = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mNormals = ByteBuffer.allocateDirect(numVertices * 3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mTexCoords = ByteBuffer.allocateDirect(numVertices * 2 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mIndices = ByteBuffer.allocateDirect(numIndices * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
 
-            mVertices.put(cubeVerts).position(0);
-            for ( i = 0; i < numVertices; i++ )
-            {
-                    mVertices.put(i, mVertices.get(i) * scale);             
-            }
+        
+        for ( i = 0; i < cubeVerts.length; i++ )
+        {
+        	cubeVerts[i] *= scale;
+        }
+        mVertices.put(cubeVerts).position(0);
 
-            mNormals.put(cubeNormals).position(0);
-            mTexCoords.put(cubeTex).position(0);
-            
-            short[] cubeIndices =
-              {
-                 0, 2, 1,
-                 0, 3, 2, 
-                 4, 5, 6,
-                 4, 6, 7,
-                 8, 9, 10,
-                 8, 10, 11, 
-                 12, 15, 14,
-                 12, 14, 13, 
-                 16, 17, 18,
-                 16, 18, 19, 
-                 20, 23, 22,
-                 20, 22, 21
-              };
+        mNormals.put(cubeNormals).position(0);
+        mTexCoords.put(cubeTex).position(0);
+        
+        short[] cubeIndices =
+          {
+             0, 2, 1,
+             0, 3, 2, 
+             4, 5, 6,
+             4, 6, 7,
+             8, 9, 10,
+             8, 10, 11, 
+             12, 15, 14,
+             12, 14, 13, 
+             16, 17, 18,
+             16, 18, 19, 
+             20, 23, 22,
+             20, 22, 21
+          };
 
-            mIndices.put(cubeIndices).position(0);
-            mNumIndices = numIndices;
-            
-            init();
-            return this;              
+        mIndices.put(cubeIndices).position(0);
+        mNumIndices = numIndices;
+        
+        init();
+        return this;              
     }
 	
 	private int createSimpleTextureCubemap( )
@@ -189,12 +200,12 @@ public class Shapes {
         byte[] cubePixels1 = { 0, 127, 0 }; 
         // Face 2 - Blue
         byte[] cubePixels2 = { 0, 0, 127 };
-        // Face 3 - Yellow
-        byte[] cubePixels3 = { 127, 127, 0 };
+        // Face 3 - White
+        byte[] cubePixels3 = { 127, 127, 127 };
         // Face 4 - Purple
         byte[] cubePixels4 = { 127, 0, 127 };
-        // Face 5 - White
-        byte[] cubePixels5 = { 127, 127, 127 };
+        // Face 5 - Yellow
+        byte[] cubePixels5 = { 127, 127, 0 };
                 
         ByteBuffer cubePixels = ByteBuffer.allocateDirect(3);
     
@@ -241,6 +252,60 @@ public class Shapes {
         return textureId[0];
     }
 	
+	private int createSkyTextureCubemap( )
+    {
+        int[] textureId = new int[1];
+
+        // Face 0 - Blue        
+        byte[] cubePixelsSky = { 63, 63, 127 };
+        // Face 3 - Gray
+        byte[] cubePixelsFloor = { 63, 127, 63 };
+                
+        ByteBuffer cubePixels = ByteBuffer.allocateDirect(3);
+    
+        // Generate a texture object
+        GLES20.glGenTextures ( 1, textureId, 0 );
+
+        // Bind the texture object
+        GLES20.glBindTexture ( GLES20.GL_TEXTURE_CUBE_MAP, textureId[0] );
+    
+        // Load the cube face - Positive X
+        cubePixels.put(cubePixelsSky).position(0);
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Load the cube face - Negative X
+        cubePixels.put(cubePixelsSky).position(0);
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Load the cube face - Positive Y
+        cubePixels.put(cubePixelsSky).position(0);        
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Load the cube face - Negative Y
+        cubePixels.put(cubePixelsFloor).position(0);
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Load the cube face - Positive Z
+        cubePixels.put(cubePixelsSky).position(0);        
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Load the cube face - Negative Z
+        cubePixels.put(cubePixelsSky).position(0);
+        GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GLES20.GL_RGB, 1, 1, 0, 
+                              GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
+
+        // Set the filtering mode
+        GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST );
+        GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST );
+
+        return textureId[0];
+    }	
+	
 	private void init() {
 		int vertexShader = RiftRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
 		int fragmentShader = RiftRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -259,8 +324,6 @@ public class Shapes {
 		
 		msSamplerHandle = GLES20.glGetUniformLocation(mProgram, "sTexture");
 		
-		mTextureId = createSimpleTextureCubemap();
-
 		Matrix.setIdentityM(mMMatrix, 0);
 	}
     

@@ -33,14 +33,16 @@ public class RiftRenderer implements Renderer {
     private final float[] mProjMatrixRight = new float[16];
 
     // Declare as volatile because we are updating it from another thread
-    public volatile float mAngle;
-    public volatile float mPosX = 10;
-    public volatile float mPosY = 0;
+    public volatile float mdAngle;
+    public volatile float mdPosX = 0;
+    public volatile float mdPosY = 0;
     
     public volatile float mIPD = 1.0f;
-    public volatile float mIPD2 = 0;
     
     public volatile Quaternion mQuaternion = new Quaternion();
+    
+    private float roomSize = 40f; // in meter
+    private float playerSize = 1f; // distance to wall where movement should stop
     
     private int frameCounter = 0;
     private long frameCheckTime = 0;
@@ -53,12 +55,13 @@ public class RiftRenderer implements Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        mRoom.genCube(1.0f);
+        mRoom.genSkyBox(1.0f).scale(roomSize, 3f, roomSize).translate(0f, 0.5f, 0f);
         
-        mCube.genCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 0, 1);
-        mCube2.genCube(1.0f).translate(-2f, 0.6f, 0.0f).scale(1.5f, 1.5f, 5.0f);
+        mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
+        mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
         
         mCamera = new RiftCamera(mIPD, 1.8f);
+        mCamera.mPosZ = 10;
         
     }
 
@@ -87,7 +90,7 @@ public class RiftRenderer implements Renderer {
         GLES20.glFlush();
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mAngle + ", IPD: " + mIPD + ", IPD2: " + mIPD2);
+    		Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + ", IPD: " + mIPD);
     		frameCounter = 0;
     		frameCheckTime += 1000;
     	}
@@ -95,10 +98,25 @@ public class RiftRenderer implements Renderer {
     }
     
     private void movePlayer() {
-    	mCamera.mPitch = 0f;
-        mCamera.mPosZ = mPosX;
-        mCamera.mPosX = mPosY;
+    	mCamera.mYaw += mdAngle;
+    	float cosAngle = (float)Math.cos(mCamera.mYaw / 180.0 * Math.PI);
+    	float singAngle = (float)Math.sin(mCamera.mYaw / 180.0 * Math.PI);
+    	
+        mCamera.mPosZ += cosAngle * mdPosX + singAngle * mdPosY;
+        mCamera.mPosX += cosAngle * mdPosY - singAngle * mdPosX;
         mCamera.mIPD = mIPD;
+
+        mdAngle = 0;
+        mdPosX = 0;
+        mdPosY = 0;
+        
+    	// collision with room walls?
+    	float border = roomSize/2 - playerSize;
+    	mCamera.mPosZ = Math.min(border, Math.max(-border, mCamera.mPosZ));
+    	mCamera.mPosX = Math.min(border, Math.max(-border, mCamera.mPosX));
+
+
+        
         mCamera.update(); 
     }
     
@@ -107,8 +125,12 @@ public class RiftRenderer implements Renderer {
     }
     
     private void drawScene(float[] VMatrix, float[] PMatrix) {
-    	GLES20.glCullFace(GLES20.GL_BACK);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
+    	GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+    	mRoom.draw(VMatrix, PMatrix);
+    	
+    	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+    	//GLES20.glCullFace(GLES20.GL_BACK);
+        //GLES20.glEnable(GLES20.GL_CULL_FACE);
         
         mCube.draw(VMatrix, PMatrix);
         mCube2.draw(VMatrix, PMatrix);
@@ -131,8 +153,8 @@ public class RiftRenderer implements Renderer {
         //Matrix.frustumM(mProjMatrixLeft, 0, -ratio, ratio, -1, 1, 1, 10);
         //Matrix.frustumM(mProjMatrixRight, 0, -ratio, ratio, -1, 1, 1, 10);
         
-        perspectiveM(mProjMatrixLeft, 0, 45.0f, ratio, 0.1f, 50);
-        perspectiveM(mProjMatrixRight, 0, 45.0f, ratio, 0.1f, 50);
+        perspectiveM(mProjMatrixLeft, 0, 45.0f, ratio, 0.1f, 150);
+        perspectiveM(mProjMatrixRight, 0, 45.0f, ratio, 0.1f, 150);
         
         frameCheckTime = System.currentTimeMillis() + 1000;;
 

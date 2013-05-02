@@ -17,8 +17,12 @@ public class RiftCamera {
 	}
 	
 	public RiftCamera(float IPD, float eyeHeight) {
-		mIPD = IPD;
+		setIPD(IPD);
 		mEyeHeight = eyeHeight;
+	}
+
+	public void setIPD(float IPD) {
+		mIPD = IPD/2.0f;
 	}
 	
 	public void update() {
@@ -30,12 +34,13 @@ public class RiftCamera {
 		
 		Matrix.translateM(mVMatrix, 0, -mPosX, -mPosY, -mPosZ);
 		
+		float cosAngle = (float)Math.cos(mYaw / 180.0 * Math.PI);
+    	float singAngle = (float)Math.sin(mYaw / 180.0 * Math.PI);
+		
 		// left eye
-		Matrix.translateM(mVMatrixLeft, 0, mVMatrix, 0, -mIPD/2.0f, -mEyeHeight, 0);
+		Matrix.translateM(mVMatrixLeft, 0, mVMatrix, 0, -cosAngle * mIPD, -mEyeHeight, -singAngle * mIPD);
 		// right eye
-		Matrix.translateM(mVMatrixRight, 0, mVMatrix, 0, mIPD/2.0f, -mEyeHeight, 0);
-
-
+		Matrix.translateM(mVMatrixRight, 0, mVMatrix, 0, cosAngle * mIPD, -mEyeHeight, singAngle * mIPD);
 
 	}
 	
