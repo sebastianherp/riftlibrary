@@ -1,9 +1,4 @@
-package net.appsdoneright.oculusrifttest.game;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
+package net.appsdoneright.riftlib.samplegame;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -13,12 +8,10 @@ import net.appsdoneright.riftlib.util.RiftHandler;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
-import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.util.Log;
 
 public class RiftRenderer implements Renderer, RiftHandler {
-    private static final String TAG = "MyGLRenderer";
+    private static final String TAG = RiftRenderer.class.getSimpleName();
     private static final boolean D = true;
     
     private static final float SIZE_WORLD = 40f; // in meter

@@ -1,4 +1,4 @@
-package net.appsdoneright.oculusrifttest.game;
+package net.appsdoneright.riftlib.samplegame;
 
 import android.os.Bundle;
 import net.appsdoneright.riftlib.RiftActivity;

@@ -1,12 +1,8 @@
-package net.appsdoneright.oculusrifttest.game;
+package net.appsdoneright.riftlib.samplegame;
 
-import net.appsdoneright.riftlib.util.Quaternion;
-import net.appsdoneright.riftlib.util.RiftHandler;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.MotionEvent.PointerCoords;
 
 public class RiftSurfaceView extends GLSurfaceView {
 

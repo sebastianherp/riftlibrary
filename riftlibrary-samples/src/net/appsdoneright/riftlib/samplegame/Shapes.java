@@ -1,4 +1,4 @@
-package net.appsdoneright.oculusrifttest.game;
+package net.appsdoneright.riftlib.samplegame;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

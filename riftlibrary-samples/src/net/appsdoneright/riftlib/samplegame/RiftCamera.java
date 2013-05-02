@@ -1,4 +1,4 @@
-package net.appsdoneright.oculusrifttest.game;
+package net.appsdoneright.riftlib.samplegame;
 
 import net.appsdoneright.riftlib.util.Quaternion;
 import android.opengl.Matrix;
