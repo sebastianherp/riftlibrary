@@ -5,6 +5,7 @@
     android:versionName="1.0" >
 
     <uses-feature android:name="android.hardware.usb.host" />
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
     
     <uses-sdk
         android:minSdkVersion="12"
@@ -30,7 +31,18 @@
             </intent-filter>
 			<meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
-			</activity>
+		</activity>
+
+        <activity
+            android:name="net.appsdoneright.oculusrifttest.game.GameActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/FullscreenTheme" >
+        </activity>	
+        <activity
+            android:name="net.appsdoneright.oculusrifttest.game.HelloOpenGLES20Activity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/FullscreenTheme" >
+        </activity>		
     </application>
 
 </manifest>

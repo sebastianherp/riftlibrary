@@ -39,6 +39,8 @@ public class RiftConnection {
 	private RiftHandler mRiftHandler = null;
 	private Context mContext;
 	
+	private volatile boolean mConnected = false;
+	
 	public RiftConnection(Context context) {
 		mContext = context;
 		
@@ -59,6 +61,11 @@ public class RiftConnection {
 	}
 	
 	public void connect(UsbDevice device) {
+		if(mConnected) {
+			if(D) Log.d(TAG, "We are already connected. Disconnect before calling connect()");
+			return;
+		}
+				
 		if(D) Log.d(TAG, "Connect to Rift");
 		
 		if(device == null) {
@@ -95,6 +102,10 @@ public class RiftConnection {
 		}
 	}
 	
+	public boolean isConnected() {
+		return mConnected;
+	}
+	
 	public RiftOrientation getOrientation() {
 		return mRiftOrientation;
 	}
@@ -105,7 +116,7 @@ public class RiftConnection {
 			Log.d(TAG, "Thread still running and still connected to Rift");
 			return;
 		}
-
+		
 		mUsbLoop = new RiftRunnable(device);
 
 		Log.d(TAG, "Start communication");
@@ -128,7 +139,7 @@ public class RiftConnection {
 		mStopThread = false;
 		mUsbLoop = null;
 		mUsbThread = null;
-		
+		mConnected = false;
 	}
 	
 	private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -187,6 +198,7 @@ public class RiftConnection {
 
 		@Override
 		public void run() {
+			mConnected = true;
 			UsbDeviceConnection mConnection = mUsbManager.openDevice(mDevice);
 			UsbInterface mUsbInterface = mDevice.getInterface(0);
 			
@@ -231,6 +243,7 @@ public class RiftConnection {
 					break;
 				}
 			}
+			mConnected = false;
 		}
 	}
 }

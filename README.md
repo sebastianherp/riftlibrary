@@ -7,7 +7,11 @@ the [Oculus Rift](http://www.oculusvr.com/)
 Setup
 -----
 
-To use the library in your application you need to modify your activity in `AndroidManifest.xml` and add the following intent filter:
+Add this to your manifest:
+
+	<uses-feature android:name="android.hardware.usb.host" />
+
+You also need to modify your activity in `AndroidManifest.xml` and add the following intent filter:
 
 	<intent-filter>
 		<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />

@@ -34,7 +34,6 @@ public class RiftActivity extends Activity {
 		setIntent(intent);
 	}	
 	
-	
 	protected void connectRift() {
 		mRift.connect(null);
 	}

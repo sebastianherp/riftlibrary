@@ -1,7 +1,7 @@
 package net.appsdoneright.riftlib.util;
 
 public class Quaternion {
-	double x,y,z,w;
+	public double x,y,z,w;
 	
 	public Quaternion() {
 		x = y = z = 0;
@@ -53,6 +53,48 @@ public class Quaternion {
 					(float)Math.asin(2 * test / unit),
 					(float)Math.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw));
 		}		
+	}
+	
+	
+	public float[] toMatrix() {
+		float[] res = new float[16];
+		toMatrix(res);
+		return res;
+	}
+	
+	public void toMatrix(float[] matrix) {
+		
+		this.normalize();
+		
+		float x2 = (float) (x * x);
+		float y2 = (float) (y * y);
+		float z2 = (float) (z * z);
+		float xy = (float) (x * y);
+		float xz = (float) (x * z);
+		float yz = (float) (y * z);
+		float wx = (float) (w * x);
+		float wy = (float) (w * y);
+		float wz = (float) (w * z);
+		
+		matrix[0] =	1.0f - 2.0f * (y2 + z2);
+		matrix[1] = 2.0f * (xy - wz);
+		matrix[2] = 2.0f * (xz + wy);
+		matrix[3] = 0.0f;
+
+		matrix[4] = 2.0f * (xy + wz);
+		matrix[5] = 1.0f - 2.0f * (x2 + z2);
+		matrix[6] = 2.0f * (yz - wx);
+		matrix[7] = 0.0f;
+		
+		matrix[8] = 2.0f * (xz - wy);
+		matrix[9] = 2.0f * (yz + wx);
+		matrix[10] = 1.0f - 2.0f * (x2 + y2);
+		matrix[11] = 0.0f;
+		
+		matrix[12] = 0.0f;
+		matrix[13] = 0.0f;
+		matrix[14] = 0.0f;
+		matrix[15] = 1.0f;
 	}
 	
 	public Quaternion multiply(Quaternion q) {

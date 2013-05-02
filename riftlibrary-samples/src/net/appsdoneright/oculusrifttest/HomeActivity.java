@@ -5,6 +5,7 @@ import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import net.appsdoneright.oculusrifttest.game.GameActivity;
 import net.appsdoneright.oculusrifttest.util.SystemUiHider;
 import net.appsdoneright.riftlib.RiftActivity;
 import net.appsdoneright.riftlib.RiftConnection;
@@ -152,6 +153,9 @@ public class HomeActivity extends RiftActivity {
 		
 		
 		mLogView = (TextView) findViewById(R.id.textViewLog);
+		
+		Intent intent = new Intent(this, GameActivity.class);
+		startActivity(intent);
 	}
 
 
@@ -201,7 +205,9 @@ public class HomeActivity extends RiftActivity {
 
 	
 	public void handleClick(View v) {
-		connectRift();
+		//connectRift();
+		Intent intent = new Intent(this, GameActivity.class);
+		startActivity(intent);
 	}
 	
 
