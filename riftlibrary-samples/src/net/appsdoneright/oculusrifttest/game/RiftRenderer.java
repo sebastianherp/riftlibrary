@@ -66,7 +66,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
         mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
         mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
         
-        mCamera = new RiftCamera();
+        mCamera = new RiftCamera(PLAYER_IPD, PLAYER_EYE_HEIGHT);
         mCamera.mPosZ = 10;
         mIPD = mCamera.getIPD();
     }
