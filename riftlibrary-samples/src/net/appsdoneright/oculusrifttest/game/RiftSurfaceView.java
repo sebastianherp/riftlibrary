@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 
-public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
+public class RiftSurfaceView extends GLSurfaceView {
 
 	private final RiftRenderer mRenderer;
     private final float SCREEN_DENSITY;
@@ -27,6 +27,10 @@ public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
 		
 		// Render the view only when there is a change in the drawing data
 		//setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+	}
+	
+	public RiftRenderer getRenderer() {
+		return mRenderer;
 	}
 	
     private float mPreviousX1;
@@ -108,15 +112,4 @@ public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
         mPreviousY2 = y2;
         return true;
     }
-
-	@Override
-	public void onDataReceived(Quaternion q, int frequency) {
-		
-		mRenderer.mQuaternion = q;
-	}
-
-	@Override
-	public void onKeepAlive(boolean result) {
-	}
-
 }

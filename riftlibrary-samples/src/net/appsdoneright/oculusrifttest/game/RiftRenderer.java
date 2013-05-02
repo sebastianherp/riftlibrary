@@ -9,6 +9,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import net.appsdoneright.riftlib.util.Quaternion;
+import net.appsdoneright.riftlib.util.RiftHandler;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
@@ -16,11 +17,13 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
 
-public class RiftRenderer implements Renderer {
+public class RiftRenderer implements Renderer, RiftHandler {
     private static final String TAG = "MyGLRenderer";
     private static final boolean D = true;
-    private static final boolean LEFTEYE = true;
-    private static final boolean RIGHTEYE = false;
+    
+    private static final float SIZE_WORLD = 40f; // in meter
+    private static final float SIZE_PLAYER = 1f; // distance to wall where movement should stop
+    private static final float FOV = 45f; // distance to wall where movement should stop
     
     private Shapes mRoom = new Shapes();
     private Shapes mCube = new Shapes();
@@ -37,13 +40,11 @@ public class RiftRenderer implements Renderer {
     public volatile float mdAngle;
     public volatile float mdPosX = 0;
     public volatile float mdPosY = 0;
-    
     public volatile float mIPD = 1.0f;
     
-    public volatile Quaternion mQuaternion = new Quaternion();
+    private volatile Quaternion mQuaternion = new Quaternion();
     
-    private float roomSize = 40f; // in meter
-    private float playerSize = 1f; // distance to wall where movement should stop
+
     
     private int frameCounter = 0;
     private long frameCheckTime = 0;
@@ -56,7 +57,7 @@ public class RiftRenderer implements Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        mRoom.genSkyBox(1.0f).scale(roomSize, 3f, roomSize).translate(0f, 0.5f, 0f);
+        mRoom.genSkyBox(1.0f).scale(SIZE_WORLD, 3f, SIZE_WORLD).translate(0f, 0.5f, 0f);
         
         mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
         mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
@@ -112,7 +113,7 @@ public class RiftRenderer implements Renderer {
         mdPosY = 0;
         
     	// collision with room walls?
-    	float border = roomSize/2 - playerSize;
+    	float border = SIZE_WORLD/2 - SIZE_PLAYER;
     	mCamera.mPosZ = Math.min(border, Math.max(-border, mCamera.mPosZ));
     	mCamera.mPosX = Math.min(border, Math.max(-border, mCamera.mPosX));
 
@@ -223,4 +224,14 @@ public class RiftRenderer implements Renderer {
             throw new RuntimeException(glOperation + ": glError " + error);
         }
     }
+
+	@Override
+	public void onDataReceived(Quaternion q, int frequency) {
+		mQuaternion.set(q);
+	}
+
+	@Override
+	public void onKeepAlive(boolean result) {
+		
+	}
 }

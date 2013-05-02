@@ -12,7 +12,7 @@ public class GameActivity extends RiftActivity {
 		super.onCreate(savedInstanceState);
 		
 		mGLView = new RiftSurfaceView(this);
-		setRiftHandler(mGLView);
+		setRiftHandler(mGLView.getRenderer());
 		setContentView(mGLView);
 	}
 	
