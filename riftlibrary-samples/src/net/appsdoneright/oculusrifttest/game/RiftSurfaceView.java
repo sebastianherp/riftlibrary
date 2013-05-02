@@ -59,9 +59,6 @@ public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
         		y2 = ev.getY(i);
         	}
         }
-        
-        PointerCoords first = new PointerCoords();
-        PointerCoords second = new PointerCoords();
 
         switch (action) {
             case MotionEvent.ACTION_MOVE:
@@ -75,14 +72,14 @@ public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
                 		dy = y1 - mPreviousY1;
                 		if (x1 < getWidth() / 2) {
                         	// first pointer in left half
-                        	mRenderer.mdPosY += (dx / 100f * SCREEN_DENSITY);
-                        	mRenderer.mdPosX += (dy / 100f * SCREEN_DENSITY);
+                        	mRenderer.mdPosY += (dx / 100f / SCREEN_DENSITY);
+                        	mRenderer.mdPosX += (dy / 100f / SCREEN_DENSITY);
                 		} else {
                 			// first pointer in right half
                         	if (y1 < getHeight() / 2) {
-                        		mRenderer.mIPD += (dx / 100f * SCREEN_DENSITY);
+                        		mRenderer.mIPD += (dx / 1000f / SCREEN_DENSITY);
                         	} else {
-                        		mRenderer.mdAngle += (dx / 20f * SCREEN_DENSITY);
+                        		mRenderer.mdAngle += (dx / 20f / SCREEN_DENSITY);
                         	}
                 		}
                 	}
@@ -96,7 +93,7 @@ public class RiftSurfaceView extends GLSurfaceView implements RiftHandler {
                 		} else {
                 			// first pointer in right half
                         	if (y2 < getHeight() / 2) {
-                        		mRenderer.mIPD += (dx / 100f * SCREEN_DENSITY);
+                        		mRenderer.mIPD += (dx / 1000f * SCREEN_DENSITY);
                         	} else {
                         		mRenderer.mdAngle += (dx / 20f * SCREEN_DENSITY);
                         	}

@@ -18,6 +18,7 @@ import android.util.Log;
 
 public class RiftRenderer implements Renderer {
     private static final String TAG = "MyGLRenderer";
+    private static final boolean D = true;
     private static final boolean LEFTEYE = true;
     private static final boolean RIGHTEYE = false;
     
@@ -60,9 +61,9 @@ public class RiftRenderer implements Renderer {
         mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
         mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
         
-        mCamera = new RiftCamera(mIPD, 1.8f);
+        mCamera = new RiftCamera();
         mCamera.mPosZ = 10;
-        
+        mIPD = mCamera.getIPD();
     }
 
     @Override
@@ -90,7 +91,7 @@ public class RiftRenderer implements Renderer {
         GLES20.glFlush();
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + ", IPD: " + mIPD);
+    		if(D) Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + ", IPD: " + mCamera.getIPD());
     		frameCounter = 0;
     		frameCheckTime += 1000;
     	}
@@ -104,7 +105,7 @@ public class RiftRenderer implements Renderer {
     	
         mCamera.mPosZ += cosAngle * mdPosX + singAngle * mdPosY;
         mCamera.mPosX += cosAngle * mdPosY - singAngle * mdPosX;
-        mCamera.mIPD = mIPD;
+        mCamera.setIPD(mIPD);
 
         mdAngle = 0;
         mdPosX = 0;

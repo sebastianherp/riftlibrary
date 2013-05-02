@@ -6,14 +6,14 @@ public class RiftCamera {
 	public float mPosX, mPosY, mPosZ;
 	public float mYaw, mPitch, mRoll;
 	
-	public float mIPD, mEyeHeight;
+	private float mIPD, mEyeHeight;
 	
 	private float mVMatrix[] = new float[16];
 	public float mVMatrixLeft[] = new float[16];
 	public float mVMatrixRight[] = new float[16];
 	
 	public RiftCamera() {
-		this(6.0f, 1.0f);
+		this(0.2333f, 1.83f);
 	}
 	
 	public RiftCamera(float IPD, float eyeHeight) {
@@ -21,9 +21,7 @@ public class RiftCamera {
 		mEyeHeight = eyeHeight;
 	}
 
-	public void setIPD(float IPD) {
-		mIPD = IPD/2.0f;
-	}
+
 	
 	public void update() {
 		// replace with rotation matrix from quaternion
@@ -42,6 +40,22 @@ public class RiftCamera {
 		// right eye
 		Matrix.translateM(mVMatrixRight, 0, mVMatrix, 0, cosAngle * mIPD, -mEyeHeight, singAngle * mIPD);
 
+	}
+	
+	public float getIPD() {
+		return -mIPD * 2.0f;
+	}
+	
+	public void setIPD(float IPD) {
+		mIPD = -IPD/2.0f;
+	}
+	
+	public float getEyeHeight() {
+		return mEyeHeight;
+	}
+	
+	public void setEyeHeight(float eyeHeight) {
+		mEyeHeight = eyeHeight;
 	}
 	
 	
