@@ -17,7 +17,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
     private static final float SIZE_WORLD = 40f; // in meter
     private static final float PLAYER_WIDTH = 1f; // distance to wall where movement should stop
     
-    private Shapes mRoom = new Shapes();
+    private Shapes mFloor = new Shapes();
     private Shapes mCube = new Shapes();
     private Shapes mCube2 = new Shapes();
     
@@ -73,11 +73,11 @@ public class RiftRenderer implements Renderer, RiftHandler {
     
     private void drawScene(float[] VMatrix, float[] PMatrix) {
     	GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-    	mRoom.draw(VMatrix, PMatrix);
+    	mFloor.draw(VMatrix, PMatrix);
     	
     	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-    	//GLES20.glCullFace(GLES20.GL_BACK);
-        //GLES20.glEnable(GLES20.GL_CULL_FACE);
+    	GLES20.glCullFace(GLES20.GL_BACK);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
         
         mCube.draw(VMatrix, PMatrix);
         mCube2.draw(VMatrix, PMatrix);
@@ -91,7 +91,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        mRoom.genSkyBox(1.0f).scale(SIZE_WORLD, 3f, SIZE_WORLD).translate(0f, 0.5f, 0f);
+        mFloor.genFloor(1.0f).scale(SIZE_WORLD, 0.1f, SIZE_WORLD).translate(0f, -1f, 0f);
         
         mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
         mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
@@ -126,8 +126,8 @@ public class RiftRenderer implements Renderer, RiftHandler {
         GLES20.glFlush();
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		if(D) Log.d(TAG, "FPS: " + frameCounter + ", angle: " + mCamera.mYaw + ", x: " + mCamera.mPosZ + ", y: " + mCamera.mPosX + 
-    				", IPD: " + mCamera.getIPD() + ", FOV: " + mCamera.getFOV());
+    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2g, x: %.2g, y: %.2g, IPD: %.4g, FOV: %.2g",
+    						frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
     		frameCounter = 0;
     		frameCheckTime += 1000;
     	}

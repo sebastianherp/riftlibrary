@@ -52,7 +52,7 @@ public class Shapes {
 		//"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n" +
 		"}							\n";
 
-	public Shapes genSkyBox(float scale) {
+	public Shapes genFloor(float scale) {
 		mTextureId = createSkyTextureCubemap();
 		return genCube(scale);
 	}
@@ -161,11 +161,9 @@ public class Shapes {
 
         
         for ( i = 0; i < cubeVerts.length; i++ )
-        {
         	cubeVerts[i] *= scale;
-        }
-        mVertices.put(cubeVerts).position(0);
 
+        mVertices.put(cubeVerts).position(0);
         mNormals.put(cubeNormals).position(0);
         mTexCoords.put(cubeTex).position(0);
         
@@ -272,17 +270,17 @@ public class Shapes {
         GLES20.glBindTexture ( GLES20.GL_TEXTURE_CUBE_MAP, textureId[0] );
     
         // Load the cube face - Positive X
-        cubePixels.put(cubePixelsSky).position(0);
+        cubePixels.put(cubePixelsFloor).position(0);
         GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GLES20.GL_RGB, 1, 1, 0, 
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
         // Load the cube face - Negative X
-        cubePixels.put(cubePixelsSky).position(0);
+        cubePixels.put(cubePixelsFloor).position(0);
         GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GLES20.GL_RGB, 1, 1, 0, 
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
         // Load the cube face - Positive Y
-        cubePixels.put(cubePixelsSky).position(0);        
+        cubePixels.put(cubePixelsFloor).position(0);        
         GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GLES20.GL_RGB, 1, 1, 0, 
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
@@ -292,12 +290,12 @@ public class Shapes {
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
         // Load the cube face - Positive Z
-        cubePixels.put(cubePixelsSky).position(0);        
+        cubePixels.put(cubePixelsFloor).position(0);        
         GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GLES20.GL_RGB, 1, 1, 0, 
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
         // Load the cube face - Negative Z
-        cubePixels.put(cubePixelsSky).position(0);
+        cubePixels.put(cubePixelsFloor).position(0);
         GLES20.glTexImage2D ( GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GLES20.GL_RGB, 1, 1, 0, 
                               GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, cubePixels );
 
