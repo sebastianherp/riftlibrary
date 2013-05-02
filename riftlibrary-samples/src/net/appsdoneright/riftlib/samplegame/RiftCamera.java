@@ -4,6 +4,10 @@ import net.appsdoneright.riftlib.util.Quaternion;
 import android.opengl.Matrix;
 
 public class RiftCamera {
+	public static final float PLAYER_EYE_HEIGHT = 1.83f; // eye height
+	public static final float PLAYER_IPD = 0.227f; // IPD
+	public static final float CAMERA_FOV = 42f; // distance to wall where movement should stop
+	
 	public float mPosX, mPosY, mPosZ;
 	public float mYaw, mPitch, mRoll;
 	
@@ -16,12 +20,9 @@ public class RiftCamera {
 	public final float mVMatrixRight[] = new float[16];
 	public final float[] mProjMatrix = new float[16]; // need one for left and right? one should be ok for now
 	
-	public RiftCamera() {
-		this(0.227f, 1.83f);
-	}
-	
-	public RiftCamera(float IPD, float eyeHeight) {
+	public RiftCamera(float IPD, float eyeHeight, float FOV, float ratio) {
 		setIPD(IPD);
+		setFOV(FOV, ratio);
 		mEyeHeight = eyeHeight;
 	}
 
@@ -66,6 +67,10 @@ public class RiftCamera {
 	
 	public void setEyeHeight(float eyeHeight) {
 		mEyeHeight = eyeHeight;
+	}
+	
+	public float getFOV() {
+		return mFOV;
 	}
 	
 	public void setFOV(float FOV, float ratio) {

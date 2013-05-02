@@ -94,7 +94,7 @@ public class RiftSurfaceView extends GLSurfaceView {
                         	} else {
                         		mRenderer.mdAngle += (dx / 10f * SCREEN_DENSITY);
                         	}
-                        	mRenderer.mFOV += (dy / 10f / SCREEN_DENSITY);
+                        	mRenderer.mdFOV += (dy / 10f / SCREEN_DENSITY);
                 		}
                 	}
                 }
