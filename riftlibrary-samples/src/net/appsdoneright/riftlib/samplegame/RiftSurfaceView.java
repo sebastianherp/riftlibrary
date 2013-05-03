@@ -14,7 +14,7 @@ public class RiftSurfaceView extends GLSurfaceView {
 
 		setEGLContextClientVersion(2);
 		
-		mRenderer = new RiftRenderer();
+		mRenderer = new RiftRenderer(getContext());
 		setRenderer(mRenderer);
 		
 		this.setKeepScreenOn(true);

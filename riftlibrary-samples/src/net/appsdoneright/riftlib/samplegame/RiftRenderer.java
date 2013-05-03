@@ -6,6 +6,7 @@ import javax.microedition.khronos.opengles.GL10;
 import net.appsdoneright.riftlib.util.Quaternion;
 import net.appsdoneright.riftlib.util.RiftHandler;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.util.Log;
@@ -17,9 +18,9 @@ public class RiftRenderer implements Renderer, RiftHandler {
     private static final float SIZE_WORLD = 40f; // in meter
     private static final float PLAYER_WIDTH = 1f; // distance to wall where movement should stop
     
-    private Shapes mFloor = new Shapes();
-    private Shapes mCube = new Shapes();
-    private Shapes mCube2 = new Shapes();
+    private Shapes mFloor;
+    private Shapes mCube;
+    private Shapes mCube2;
     
     private RiftCamera mCamera;
     
@@ -37,6 +38,12 @@ public class RiftRenderer implements Renderer, RiftHandler {
     
     private int frameCounter = 0;
     private long frameCheckTime = 0;
+    
+    private Context mContext;
+    
+    public RiftRenderer(Context context) {
+    	mContext = context;
+    }
     
     private void movePlayer() {
     	mCamera.mYaw += mdAngle;
@@ -91,10 +98,10 @@ public class RiftRenderer implements Renderer, RiftHandler {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        mFloor.genFloor(1.0f).scale(SIZE_WORLD, 0.1f, SIZE_WORLD).translate(0f, -1f, 0f);
+        mFloor = Shapes.Floor(mContext, 1.0f).scale(SIZE_WORLD, 0.1f, SIZE_WORLD).translate(0f, -1f, 0f);
         
-        mCube.genColorCube(1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
-        mCube2.genColorCube(2.0f).translate(-3f, 1.0f, 0.0f);
+        mCube = Shapes.ColorCube(mContext, 1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
+        mCube2 = Shapes.ColorCube(mContext, 2.0f).translate(-3f, 1.0f, 0.0f);
         
         mCamera = new RiftCamera(RiftCamera.PLAYER_IPD, RiftCamera.PLAYER_EYE_HEIGHT, RiftCamera.CAMERA_FOV, 1);
         mCamera.mPosZ = 10;
@@ -126,7 +133,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
         GLES20.glFlush();
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2g, x: %.2g, y: %.2g, IPD: %.4g, FOV: %.2g",
+    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2f, x: %.2f, y: %.2f, IPD: %.4f, FOV: %.2f",
     						frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
     		frameCounter = 0;
     		frameCheckTime += 1000;

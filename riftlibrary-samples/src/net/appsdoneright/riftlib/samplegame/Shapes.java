@@ -1,16 +1,24 @@
 package net.appsdoneright.riftlib.samplegame;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import net.appsdoneright.oculusrifttest.R;
+
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
 public class Shapes {
 	private static final String TAG = Shapes.class.getSimpleName();
+	
+	private Context mContext = null;
 	
     private FloatBuffer mVertices;
     private FloatBuffer mNormals;
@@ -52,9 +60,23 @@ public class Shapes {
 		//"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n" +
 		"}							\n";
 
+	public Shapes(Context context) {
+		mContext = context;
+	}
+
+	public static Shapes Floor(Context context, float scale) {
+		Shapes shape = new Shapes(context);
+		return shape.genFloor(scale);
+	}
+	
 	public Shapes genFloor(float scale) {
 		mTextureId = createSkyTextureCubemap();
 		return genCube(scale);
+	}
+	
+	public static Shapes ColorCube(Context context, float scale) {
+		Shapes shape = new Shapes(context);
+		return shape.genColorCube(scale);
 	}
 	
 	public Shapes genColorCube(float scale) {
@@ -307,8 +329,10 @@ public class Shapes {
     }	
 	
 	private void init() {
-		int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+		
+		
+		int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, R.raw.vs_basic);
+		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, R.raw.ps_basic);
 		
 		mProgram = GLES20.glCreateProgram();
 		GLES20.glAttachShader(mProgram, vertexShader);
@@ -393,6 +417,26 @@ public class Shapes {
     public Shapes scale(float x, float y, float z) {
     	Matrix.scaleM(mMMatrix, 0, x, y, z);
     	return this;
+    }
+    
+    public int loadShader(int type, int resourceID) {
+    	StringBuffer shader = new StringBuffer();
+    	
+    	try {
+	    	InputStream is = mContext.getResources().openRawResource(resourceID);
+	    	BufferedReader br = new BufferedReader(new InputStreamReader(is));
+	    	String read = br.readLine();
+			while (read != null) {
+				shader.append(read + "\n");
+				read = br.readLine();
+			}
+	
+			shader.deleteCharAt(shader.length() - 1);
+    	} catch(Exception e) {
+    		Log.d(TAG, "Could not read shader: " + e.getMessage());
+    	}
+    	
+    	return loadShader(type, shader.toString());
     }
     
     public static int loadShader(int type, String shaderCode){

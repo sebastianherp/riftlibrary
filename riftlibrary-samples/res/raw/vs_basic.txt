@@ -1,0 +1,11 @@
+uniform mat4 uMMatrix;
+uniform mat4 uVMatrix;
+uniform mat4 uPMatrix;
+attribute vec3 aNormal;
+attribute vec4 aPosition;
+varying vec3 vNormal;
+
+void main() {
+	vNormal = aNormal;
+	gl_Position = uPMatrix * uVMatrix * uMMatrix * aPosition; 
+}
