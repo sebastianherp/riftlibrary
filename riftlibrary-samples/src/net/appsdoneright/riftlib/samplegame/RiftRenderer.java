@@ -45,6 +45,66 @@ public class RiftRenderer implements Renderer, RiftHandler {
     	mContext = context;
     }
     
+    @Override
+    public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+
+        // Set the background frame color
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+
+        mFloor = Shapes.Floor(mContext, 1.0f).scale(SIZE_WORLD, 0.1f, SIZE_WORLD).translate(0f, -1f, 0f);
+        
+        mCube = Shapes.ColorCube(mContext, 1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
+        mCube2 = Shapes.ColorCube(mContext, 2.0f).translate(-3f, 1.0f, 0.0f);
+        
+        mCamera = new RiftCamera(RiftCamera.PLAYER_IPD, RiftCamera.PLAYER_EYE_HEIGHT, RiftCamera.CAMERA_FOV, 1);
+        mCamera.mPosZ = 10;
+        mIPD = mCamera.getIPD();
+    }
+
+    @Override
+    public void onDrawFrame(GL10 unused) {
+    	
+        movePlayer();
+
+        updateScene();
+        
+        renderFrame();
+
+        
+    	if(frameCheckTime < System.currentTimeMillis()) {
+    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2f, x: %.2f, y: %.2f, IPD: %.4f, FOV: %.2f",
+    						frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
+    		frameCounter = 0;
+    		frameCheckTime += 1000;
+    	}
+    	frameCounter++;
+    }
+    
+    @Override
+    public void onSurfaceChanged(GL10 unused, int width, int height) {
+    	
+    	mHalfWidth = width/2;
+    	mHeight = height;
+    	
+        mRatio = (float) mHalfWidth / height;
+
+        mCamera.setFOV(mCamera.getFOV(), mRatio);
+        
+        frameCheckTime = System.currentTimeMillis() + 1000;;
+    }
+
+	@Override
+	public void onDataReceived(Quaternion q, int frequency) {
+		mQuaternion.set(q);
+	}
+
+	@Override
+	public void onKeepAlive(boolean result) {
+		
+	}
+    
     private void movePlayer() {
     	mCamera.mYaw += mdAngle;
     	float cosAngle = (float)Math.cos(mCamera.mYaw / 180.0 * Math.PI);
@@ -78,44 +138,36 @@ public class RiftRenderer implements Renderer, RiftHandler {
     	mCube.rotate(1.5f, 6f, 2.7f, 3.5f);
     }
     
-    private void drawScene(float[] VMatrix, float[] PMatrix) {
-    	GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-    	mFloor.draw(VMatrix, PMatrix);
+    private int mTextureWidth, mTextureHeight;
+    int[] fb, depthRb, renderTex;
+    
+    private boolean renderFrameToTexture() {
     	
-    	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-    	GLES20.glCullFace(GLES20.GL_BACK);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        
-        mCube.draw(VMatrix, PMatrix);
-        mCube2.draw(VMatrix, PMatrix);
-    }    
-
-    @Override
-    public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-
-        // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-
-        mFloor = Shapes.Floor(mContext, 1.0f).scale(SIZE_WORLD, 0.1f, SIZE_WORLD).translate(0f, -1f, 0f);
-        
-        mCube = Shapes.ColorCube(mContext, 1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
-        mCube2 = Shapes.ColorCube(mContext, 2.0f).translate(-3f, 1.0f, 0.0f);
-        
-        mCamera = new RiftCamera(RiftCamera.PLAYER_IPD, RiftCamera.PLAYER_EYE_HEIGHT, RiftCamera.CAMERA_FOV, 1);
-        mCamera.mPosZ = 10;
-        mIPD = mCamera.getIPD();
+    	GLES20.glViewport(0, 0, mTextureWidth, mTextureHeight);
+    	
+    	GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fb[0]);
+    	
+    	GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, renderTex[0], 0);
+    	
+    	GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_RENDERBUFFER, depthRb[0]);
+    	
+    	int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
+		if (status != GLES20.GL_FRAMEBUFFER_COMPLETE)
+			return false;
+		
+		renderFrame();
+		
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+		
+		GLES20.glClearColor(0f, 0f, 0f, 1f);
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		
+		return true;
     }
-
-    @Override
-    public void onDrawFrame(GL10 unused) {
+    
+    private void renderFrame() {
     	// clear background
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-        movePlayer();
-        updateScene();
-        
         
         // view for left eye
        	GLES20.glViewport(0, 0, mHalfWidth, mHeight);
@@ -131,36 +183,18 @@ public class RiftRenderer implements Renderer, RiftHandler {
        	drawScene(mCamera.mVMatrixRight, mCamera.mProjMatrix);
         // flush
         GLES20.glFlush();
-        
-    	if(frameCheckTime < System.currentTimeMillis()) {
-    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2f, x: %.2f, y: %.2f, IPD: %.4f, FOV: %.2f",
-    						frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
-    		frameCounter = 0;
-    		frameCheckTime += 1000;
-    	}
-    	frameCounter++;
-    }
-    
-    @Override
-    public void onSurfaceChanged(GL10 unused, int width, int height) {
-    	
-    	mHalfWidth = width/2;
-    	mHeight = height;
-    	
-        mRatio = (float) mHalfWidth / height;
-
-        mCamera.setFOV(mCamera.getFOV(), mRatio);
-        
-        frameCheckTime = System.currentTimeMillis() + 1000;;
     }
 
-	@Override
-	public void onDataReceived(Quaternion q, int frequency) {
-		mQuaternion.set(q);
-	}
+    private void drawScene(float[] VMatrix, float[] PMatrix) {
+    	GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+    	mFloor.draw(VMatrix, PMatrix);
+    	
+    	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+    	GLES20.glCullFace(GLES20.GL_BACK);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        
+        mCube.draw(VMatrix, PMatrix);
+        mCube2.draw(VMatrix, PMatrix);
+    } 
 
-	@Override
-	public void onKeepAlive(boolean result) {
-		
-	}
 }
