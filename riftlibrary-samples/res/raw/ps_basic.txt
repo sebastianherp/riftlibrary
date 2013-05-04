@@ -1,7 +1,14 @@
 precision mediump float;
 uniform vec3 uLightPos;
+uniform vec4 lightColor;
 
 uniform samplerCube sTexture;
+
+// material
+uniform vec4 matAmbient;
+uniform vec4 matDiffuse;
+uniform vec4 matSpecular;
+uniform float matShininess;
 
 varying vec3 vEyeNormal;
 varying vec3 vNormal;

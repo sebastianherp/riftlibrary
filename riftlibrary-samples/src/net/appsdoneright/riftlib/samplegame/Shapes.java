@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.appsdoneright.oculusrifttest.R;
 
@@ -41,7 +43,8 @@ public class Shapes {
 
 	private float[] mMMatrix = new float[16];
 	private float[] mMVPMatrix = new float[16];
-	private final float[] mLightPosInEyeSpace = new float[4];
+	
+	private List<Light> mLights = new ArrayList<Light>();
 	
 	public Shapes(Context context) {
 		mContext = context;
@@ -66,9 +69,13 @@ public class Shapes {
 	}
 	
 	
-//	public Shapes genLight() {
-//		
-//	}
+	public void addLight(Light light) {
+		mLights.add(light);
+	}
+	
+	public void clearLights() {
+		mLights.clear();
+	}
 	
 	private void genCube(float scale) {
         int i;
@@ -365,13 +372,6 @@ public class Shapes {
     	return mMMatrix;
     }
                     
-    public void setLight(float[] lightPosInEyeSpace) {
-    	mLightPosInEyeSpace[0] = lightPosInEyeSpace[0];
-    	mLightPosInEyeSpace[1] = lightPosInEyeSpace[1];
-    	mLightPosInEyeSpace[2] = lightPosInEyeSpace[2];
-    	mLightPosInEyeSpace[3] = lightPosInEyeSpace[3];
-    }
-
     public void draw(float[] mVMatrix, float[] mProjMatrix) {
 		//Add program
 		GLES20.glUseProgram(mProgram);
@@ -390,7 +390,10 @@ public class Shapes {
         GLES20.glUniformMatrix4fv(muVMatrixHandle, 1, false, mVMatrix, 0);
 		GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, mProjMatrix, 0);
 		
-		GLES20.glUniform3f(muLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+		if(mLights.size() > 0) {
+			float[] mLightPosInEyeSpace = mLights.get(0).getLightPos();
+			GLES20.glUniform3f(muLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+		}
 
 		//Draw the shape
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumIndices, GLES20.GL_UNSIGNED_SHORT, mIndices);

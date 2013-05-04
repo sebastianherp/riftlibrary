@@ -62,6 +62,11 @@ public class RiftRenderer implements Renderer, RiftHandler {
         
         mLight = new Light(mContext);
         
+        // add light to scene
+        mFloor.addLight(mLight);
+        mCube.addLight(mLight);
+        mCube2.addLight(mLight);
+        
         mCamera = new RiftCamera(RiftCamera.PLAYER_IPD, RiftCamera.PLAYER_EYE_HEIGHT, RiftCamera.CAMERA_FOV, 1);
         mCamera.mPosZ = 10;
         mIPD = mCamera.getIPD();
@@ -78,8 +83,8 @@ public class RiftRenderer implements Renderer, RiftHandler {
 
         
     	if(frameCheckTime < System.currentTimeMillis()) {
-    		if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2f, x: %.2f, y: %.2f, IPD: %.4f, FOV: %.2f",
-    						frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
+    		//if(D) Log.d(TAG, String.format("FPS: %d, angle: %.2f, x: %.2f, y: %.2f, IPD: %.4f, FOV: %.2f",
+    		//				frameCounter, mCamera.mYaw, mCamera.mPosZ, mCamera.mPosX, mCamera.getIPD(), mCamera.getFOV()) );
     		frameCounter = 0;
     		frameCheckTime += 1000;
     	}
@@ -138,17 +143,16 @@ public class RiftRenderer implements Renderer, RiftHandler {
         mCamera.update(); 
     }
     
+    
+    private float angleInDegrees;
+    
     private void updateScene() {
     	mCube.rotate(1.5f, 6f, 2.7f, 3.5f);
     	mCube2.rotate(-0.3f, 3f, 2.1f, 0.5f);
-
-    	long time = SystemClock.uptimeMillis() % 10000L;        
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time); 
+      
+        angleInDegrees = (360.0f / 10000.0f) * ((int) (SystemClock.uptimeMillis() % 10000L)); 
     	mLight.reset().translate(-1.5f, 0, 0f).rotate(angleInDegrees, 0, 1, 0).translate(0f, 2.8f, -3f);
    	
-    	mCube.setLight(mLight.getLight());
-    	mCube2.setLight(mLight.getLight());
-    	mFloor.setLight(mLight.getLight());
     }
     
     private int mTextureWidth, mTextureHeight;
@@ -206,10 +210,11 @@ public class RiftRenderer implements Renderer, RiftHandler {
     	GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         
-        mLight.draw(VMatrix, PMatrix);
         
         mCube.draw(VMatrix, PMatrix);
         mCube2.draw(VMatrix, PMatrix);
+
+        mLight.draw(VMatrix, PMatrix);
     } 
 
 }

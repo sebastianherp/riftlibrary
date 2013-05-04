@@ -27,12 +27,16 @@ public class Light {
 	/** Used to hold the transformed position of the light in eye space (after transformation via modelview matrix) */
 	private final float[] mLightPosInEyeSpace = new float[4];
 	
+	private float[] lightColor;
+	private float[] lightAmbient;
+	private float[] lightDiffuse;
+	
 	public Light(Context context) {
 		mContext = context;
 		initLight();
 	}
 	
-	public float[] getLight() {
+	public float[] getLightPos() {
 		return mLightPosInEyeSpace;
 	}
 	
@@ -70,7 +74,7 @@ public class Light {
 		GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, mProjMatrix, 0);
 
 		//Draw the light
-		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
+		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 2);
     }
 	
     public Light reset() {
