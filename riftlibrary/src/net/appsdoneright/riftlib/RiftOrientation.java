@@ -13,7 +13,7 @@ public class RiftOrientation {
 	private Vector3 mAngV = new Vector3();
 	private Vector3 mA = new Vector3();
 	private Quaternion mOrientation = new Quaternion();
-	
+	private MessageBodyFrame mSensors = new MessageBodyFrame();
 	
 	private static class MessageBodyFrame {
 		Vector3 mAcceleration = new Vector3();
@@ -23,30 +23,30 @@ public class RiftOrientation {
 		float mTimeDelta;
 	}
 	
+
 	public Quaternion getOrientation() {
 		return mOrientation;
 	}
 	
 	public void updateOrientation(TrackerMessage msg) {
 		
-		MessageBodyFrame sensors = new MessageBodyFrame();
 		int iterations = msg.mSampleCount;
 		if(msg.mSampleCount > 3) {
 			iterations = 3;
-			sensors.mTimeDelta = (msg.mSampleCount - 2) * timeUnit;
+			mSensors.mTimeDelta = (msg.mSampleCount - 2) * timeUnit;
 		} else {
-			sensors.mTimeDelta = timeUnit;
+			mSensors.mTimeDelta = timeUnit;
 		}
 		
 		for(int i=0; i < iterations; i++) {
-			sensors.mAcceleration.set(msg.samples[i].mAcc);
-			sensors.mRotationRate.set(msg.samples[i].mGyro);
-			sensors.mMagneticField.set(msg.mMag);
-			sensors.mTemperature = msg.mTemperature;
+			mSensors.mAcceleration.set(msg.samples[i].mAcc);
+			mSensors.mRotationRate.set(msg.samples[i].mGyro);
+			mSensors.mMagneticField.set(msg.mMag);
+			mSensors.mTemperature = msg.mTemperature;
 			
-			updateOrientation(sensors);
+			updateOrientation(mSensors);
 			
-			sensors.mTimeDelta = timeUnit;					
+			mSensors.mTimeDelta = timeUnit;					
 		}
 		
 	}
@@ -55,6 +55,16 @@ public class RiftOrientation {
 		
 		updateOrientationOculus(sensors);
 	}
+	
+	private Quaternion dQ = new Quaternion();
+	private Quaternion feedback = new Quaternion();
+	private Quaternion feedback2 = new Quaternion();
+	private Quaternion q1 = new Quaternion();
+	private Quaternion q2 = new Quaternion();	
+	private Vector3 dV = new Vector3();
+	private Vector3 aw = new Vector3();
+	private Vector3 tempV = new Vector3();
+	private Vector3 yUp = new Vector3();
 	
 	/***
 	 * Possible license problem, but implemented so we can compare
@@ -66,13 +76,13 @@ public class RiftOrientation {
 		
 		mA.set(sensors.mAcceleration).scale(sensors.mTimeDelta);
 		
-		Vector3 dV = new Vector3(mAngV).scale(sensors.mTimeDelta);
+		dV.set(mAngV).scale(sensors.mTimeDelta);
 		final float angle = dV.length();
 		
 		if(angle > 0.0f) {
 			float halfa = angle * 0.5f;
 			float sina = (float)Math.sin(halfa) / angle;
-			Quaternion dQ = new Quaternion(
+			dQ.set(
 				dV.x * sina,
 				dV.y * sina,
 				dV.z * sina,
@@ -90,44 +100,58 @@ public class RiftOrientation {
 			(Math.abs(accelMagnitude - 9.81f) < gravityEpsilon) &&
 			(angVMagnitude < angVEpsilon)) {
 			
-			Vector3 yUp = new Vector3(0, 1, 0);
-			Vector3 aw = mOrientation.rotate(mA);
+			yUp.set(0, 1, 0);
+			rotate(aw, mOrientation, mA);
 			
-			Quaternion feedback = new Quaternion(
+			feedback.set(
 				-aw.z * GAIN,
 				0,
 				aw.x * GAIN,
 				1);
 			
-			Quaternion q1 = new Quaternion(feedback).multiply(mOrientation);
+			q1.set(feedback).multiply(mOrientation);
 			q1.normalize();
 			
 			float angle0 = Vector3.angle(yUp, aw);
 			
-			Vector3 temp = q1.rotate(mA);
-			float angle1 = Vector3.angle(yUp, temp);
+			rotate(tempV, q2, mA);
+			float angle1 = Vector3.angle(yUp, tempV);
 			
 			if(angle1 < angle0) {
 				mOrientation.set(q1);
 			
 			} else {
 				
-				Quaternion feedback2 = new Quaternion(
+				feedback2.set(
 						aw.z * GAIN,
 						0,
 						-aw.x * GAIN,
 						1);
 				
-				Quaternion q2 = new Quaternion(feedback2).multiply(mOrientation);
+				q2.set(feedback2).multiply(mOrientation);
 				q2.normalize();
 				
-				Vector3 temp2 = q2.rotate(mA);
-				float angle2 = Vector3.angle(yUp, temp2);
+				rotate(tempV, q2, mA);
+				float angle2 = Vector3.angle(yUp, tempV);
 				
 				if(angle2 < angle0) {
 					mOrientation.set(q2);
 				}
 			}
 		}
+	}
+	
+	private Quaternion tempQ = new Quaternion();
+	private Quaternion invQ = new Quaternion();
+	
+	private Vector3 rotate(Vector3 result, Quaternion q, Vector3 v) {
+		tempQ.set(q);
+		invQ.set(q).inverse();
+		
+		tempQ.multiply(v.x, v.y, v.z, 1);
+		tempQ.multiply(invQ);
+		
+		result.set((float)tempQ.x, (float)tempQ.y, (float)tempQ.z);
+		return result;
 	}
 }

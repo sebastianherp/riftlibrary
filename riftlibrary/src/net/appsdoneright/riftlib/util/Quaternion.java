@@ -27,6 +27,14 @@ public class Quaternion {
 		return this;
 	}
 	
+	public Quaternion set(double x, double y, double z, double w) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("x=%.3g, y=%.3g, z=%.3g, w=%.3g", x, y, z, w);
@@ -98,8 +106,11 @@ public class Quaternion {
 	}
 	
 	public Quaternion multiply(Quaternion q) {
+		return multiply(q.x, q.y, q.z, q.w);
+	}
+	
+	public Quaternion multiply(double q2x, double q2y, double q2z, double q2w) {
 		double q1x = this.x, q1y = this.y, q1z = this.z, q1w = this.w;
-		double q2x = q.x, q2y = q.y, q2z = q.z, q2w = q.w;
 		
 		this.x = q1x * q2w + q1w * q2x + q1y * q2z - q1z * q2y;
 		this.y = q1y * q2w + q1w * q2y + q1z * q2x - q1x * q2z;
@@ -130,27 +141,16 @@ public class Quaternion {
 		return this;
 	}
 	
-	public static Quaternion inverse(Quaternion q) {
-		double dot = dot(q, q);
+	public Quaternion inverse() {
+		double dot = dot(this, this);
 		double invDot = 1.0/dot;
 		
-		Quaternion res = new Quaternion(q);
-		res.x *= -invDot;
-		res.y *= -invDot;
-		res.z *= -invDot;
-		res.w *= invDot;
+		this.x *= -invDot;
+		this.y *= -invDot;
+		this.z *= -invDot;
+		this.w *= invDot;
 		
-		return res;
+		return this;
 	}
 	
-	public Vector3 rotate(Vector3 v) {
-		Quaternion temp2 = new Quaternion(this);
-		Quaternion temp = new Quaternion(v.x, v.y, v.z, 1);
-		Quaternion qInv = Quaternion.inverse(this);
-		
-		temp2.multiply(temp);
-		temp2.multiply(qInv);
-		
-		return new Vector3((float)temp2.x, (float)temp2.y, (float)temp2.z);		
-	}
 }

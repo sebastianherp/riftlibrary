@@ -13,38 +13,38 @@ public class TrackerMessage {
 	public float mTemperature;
 	
 	public static class TrackerData {
-		public Vector3 mAcc, mGyro;
+		public Vector3 mAcc = new Vector3();
+		public Vector3 mGyro = new Vector3();
 	}
 	public TrackerData[] samples = new TrackerData[3];
-	public Vector3 mMag;
+	public Vector3 mMag = new Vector3();
 	
-	public TrackerMessage() {}
-	
-	public TrackerMessage(byte[] buffer, int length) {
-		parseBuffer(buffer, length);
+	public TrackerMessage() {
+		for(int i=0; i<3; i++)
+			samples[i] = new TrackerData();
+		
 	}
 	
 	public boolean parseBuffer(byte[] buffer, int length) {
 		if(length == 62) {
-
-			ByteBuffer bb = ByteBuffer.wrap(buffer);
-			bb.order(ByteOrder.LITTLE_ENDIAN);
-			this.mSampleCount = bb.get(1);
-			this.mTimestamp = decodeUInt16(bb, 2);
-			this.mLastCommandId = decodeUInt16(bb, 4);
-			this.mTemperature = decodeSInt16(bb, 6) * TEMPERATURE_SCALE;
+			
+			//bb.order(ByteOrder.LITTLE_ENDIAN);
+			this.mSampleCount = buffer[1];
+			this.mTimestamp = decodeUInt16(buffer, 2);
+			this.mLastCommandId = decodeUInt16(buffer, 4);
+			this.mTemperature = decodeSInt16(buffer, 6) * TEMPERATURE_SCALE;
 			
 			int iterationCount = Math.min(3, this.mSampleCount);
 			for(int i=0; i < iterationCount; i++) {
-				this.samples[i] = new TrackerData();
-				this.samples[i].mAcc = unpackSensor(buffer, 8 + 16 * i).scale(SENSOR_SCALE);
-				this.samples[i].mGyro = unpackSensor(buffer, 16 + 16 * i).scale(SENSOR_SCALE);
+				//this.samples[i] = new TrackerData();
+				unpackSensor(this.samples[i].mAcc, buffer, 8 + 16 * i).scale(SENSOR_SCALE);
+				unpackSensor(this.samples[i].mGyro, buffer, 16 + 16 * i).scale(SENSOR_SCALE);
 			}
 			
-			this.mMag = new Vector3(
-					decodeSInt16(bb, 56),
-					decodeSInt16(bb, 58),
-					decodeSInt16(bb, 60)
+			this.mMag.set(
+					decodeSInt16(buffer, 56),
+					decodeSInt16(buffer, 58),
+					decodeSInt16(buffer, 60)
 			).scale(SENSOR_SCALE);
 			
 			return true;
@@ -62,14 +62,16 @@ public class TrackerMessage {
 			"\nMag:\n"+ mMag.x + "\n" + mMag.y + "\n" + mMag.z;
 	}
 	
-	static int decodeUInt16(ByteBuffer bb, int start)
+	static int decodeUInt16(byte[] buffer, int start)
 	{
-		return (bb.getShort(start) & 0xffff);
+		return (buffer[start+1] << 8 | buffer[start]) & 0xffff;
+		//return (bb.getShort(start) & 0xffff);
 	}
 
-	static short decodeSInt16(ByteBuffer bb, int start)
+	static short decodeSInt16(byte[] buffer, int start)
 	{
-	    return bb.getShort(start);
+		return (short)(buffer[start+1] << 8 | buffer[start]);
+	    //return bb.getShort(start);
 	}
 
 	static long decodeUInt32(ByteBuffer bb, int start)
@@ -82,14 +84,14 @@ public class TrackerMessage {
 		return bb.getFloat(start);
 	}
 
-	static Vector3 unpackSensor(byte[] buffer, int start)
+	static Vector3 unpackSensor(Vector3 result, byte[] buffer, int start)
 	{
-		Vector3 res = new Vector3(
+		result.set(
 				( buffer[start+0] << 24 | (buffer[start+1] & 0xff) << 16 | (buffer[start+2] & 0xff) << 8 ) >> 11,
 				( buffer[start+2] << 29 | (buffer[start+3] & 0xff) << 21 | (buffer[start+4] & 0xff) << 13 | (buffer[start+5] & 0xff) << 5 ) >> 11,
 				( buffer[start+5] << 26 | (buffer[start+6] & 0xff) << 18 | (buffer[start+7] & 0xff) << 10 ) >> 11
 		);
 		
-		return res;
+		return result;
 	}
 }

@@ -33,6 +33,7 @@ public class RiftConnection {
 	private Thread mUsbThread;
 	
 	private static final Object[] lock = new Object[]{};
+	private static byte[] buf = new byte[4];
 	private boolean mStopThread = false;
 	
 	private RiftOrientation mRiftOrientation = new RiftOrientation();
@@ -170,22 +171,22 @@ public class RiftConnection {
 	};
 	
 	private static boolean sendKeepAlive(int keepAliveInterval, UsbDeviceConnection connection) {
-		byte[] buf = new byte[4];
-		
-		int command = 0;
-		
-		buf[0] = (byte) (command & 0xFF);
-		buf[0] = (byte) (command >> 8);
-		buf[0] = (byte) (keepAliveInterval & 0xFF);
-		buf[0] = (byte) (keepAliveInterval >> 8);
-		
-		
-		// http://www.usb.org/developers/devclass_docs/HID1_11.pdf from page 51
-		// 0x21   => Send direction
-		// 0x09   => Set_Report request
-		// 0x0308 => Report Type Feature 0x03 << 8 | Report ID 0x08 (keep alive)
-		int len = connection.controlTransfer(0x21, 0x09, 0x0308, 0, buf, 4, 0);
-		return len >= 0;		
+		synchronized (lock) {
+			int command = 0;
+			
+			buf[0] = (byte) (command & 0xFF);
+			buf[0] = (byte) (command >> 8);
+			buf[0] = (byte) (keepAliveInterval & 0xFF);
+			buf[0] = (byte) (keepAliveInterval >> 8);
+			
+			
+			// http://www.usb.org/developers/devclass_docs/HID1_11.pdf from page 51
+			// 0x21   => Send direction
+			// 0x09   => Set_Report request
+			// 0x0308 => Report Type Feature 0x03 << 8 | Report ID 0x08 (keep alive)
+			int len = connection.controlTransfer(0x21, 0x09, 0x0308, 0, buf, 4, 0);
+			return len >= 0;		
+		}
 	}
 	
 	private class RiftRunnable implements Runnable {
