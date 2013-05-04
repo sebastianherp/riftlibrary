@@ -35,6 +35,19 @@ Usage
 
 TBD
 
+Screenshots
+-----------
+
+![Version 0.2](http://appsdoneright.net/files/screenshot_0.2.png)
+
+Compatible Devices
+------------------
+
+- Nexus 10
+- Nexus 7 (obviously no HDMI output)
+- Asus Transformer Prime
+- ... theoretically every device with USB host and HDMI out should work with the Rift (let me know what you are using)
+
 Debugging
 ---------
 
