@@ -37,7 +37,11 @@ public class Shapes {
 		muPMatrixHandle,
 		muMMatrixHandle,
 		muVMatrixHandle,
-		msSamplerHandle;
+		msSamplerHandle,
+		muMatAmbientHandle,
+		muMatDiffuseHandle,
+		muMatSpecularHandle,
+		muMatShininessHandle;
     
 	private int mTextureId;
 
@@ -45,6 +49,12 @@ public class Shapes {
 	private float[] mMVPMatrix = new float[16];
 	
 	private List<Light> mLights = new ArrayList<Light>();
+	
+	// material properties
+	private float[] matAmbient;
+	private float[] matDiffuse;
+	private float[] matSpecular;
+	private float matShininess;
 	
 	public Shapes(Context context) {
 		mContext = context;
@@ -200,7 +210,16 @@ public class Shapes {
         mIndices.put(cubeIndices).position(0);
         mNumIndices = numIndices;
         
-        
+        float[] mA = {0.7f, 0.7f, 0.7f, 1.0f};
+		matAmbient = mA;
+
+		float[] mD = {0.5f, 0.5f, 0.5f, 1.0f};
+		matDiffuse = mD;
+
+		float[] mS =  {0.5f, 0.5f, 0.5f, 0.5f};
+		matSpecular = mS;
+
+		matShininess = 5.0f;
     }
 	
 	private int createSimpleTextureCubemap( )
@@ -339,6 +358,11 @@ public class Shapes {
 		muPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uPMatrix");
 		muLightPosHandle = GLES20.glGetUniformLocation(mProgram, "uLightPos");
 		msSamplerHandle = GLES20.glGetUniformLocation(mProgram, "sTexture");
+		muMatAmbientHandle = GLES20.glGetUniformLocation(mProgram, "matAmbient");
+		muMatDiffuseHandle = GLES20.glGetUniformLocation(mProgram, "matDiffuse");
+		muMatSpecularHandle = GLES20.glGetUniformLocation(mProgram, "matSpecular");
+		muMatShininessHandle = GLES20.glGetUniformLocation(mProgram, "matShininess");
+
 		
 		Matrix.setIdentityM(mMMatrix, 0);
 	}
@@ -393,6 +417,11 @@ public class Shapes {
 		if(mLights.size() > 0) {
 			float[] mLightPosInEyeSpace = mLights.get(0).getLightPos();
 			GLES20.glUniform3f(muLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+			
+			GLES20.glUniform4fv(muMatAmbientHandle, 1, matAmbient, 0);
+			GLES20.glUniform4fv(muMatDiffuseHandle, 1, matDiffuse, 0);
+			GLES20.glUniform4fv(muMatSpecularHandle, 1, matSpecular, 0);
+			GLES20.glUniform1f(muMatShininessHandle, matShininess);
 		}
 
 		//Draw the shape

@@ -17,10 +17,10 @@ varying vec3 vPosition;
 void main() {
 	float distance = length(uLightPos - vPosition);
 	vec3 lightVec = normalize(uLightPos - vPosition);
-	float diffuse = max(dot(vEyeNormal, lightVec), 0.3);
+	vec4 diffuseTerm = matDiffuse * max(dot(vEyeNormal, lightVec), 0.0);
 	
-	// attenuation
-	diffuse = diffuse * (1.0 / (1.0 + (0.000005 * distance * distance)));
-
-	gl_FragColor = textureCube(sTexture, vNormal) * diffuse;
+	vec3 reflectV = reflect(-lightVec, vEyeNormal);
+	vec4 specularTerm = matSpecular * pow(max(dot(reflectV, vEyeNormal), 0.0), matShininess);
+	
+	gl_FragColor = textureCube(sTexture, vNormal) * matAmbient + diffuseTerm + specularTerm;
 }

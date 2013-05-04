@@ -1,5 +1,9 @@
 package net.appsdoneright.riftlib.samplegame;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 import net.appsdoneright.oculusrifttest.R;
 import android.content.Context;
 import android.opengl.GLES20;
@@ -8,6 +12,8 @@ import android.opengl.Matrix;
 public class Light {
 	
 	private Context mContext = null;
+	
+	private FloatBuffer mVertices;
 	
 	private int	mProgram,
 	maPositionHandle,
@@ -41,6 +47,13 @@ public class Light {
 	}
 	
 	private void initLight() {
+		float[] pointVerts =
+        {
+				0f, 0f, 0f,
+        };
+		mVertices = ByteBuffer.allocateDirect(1 * 3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mVertices.put(pointVerts).position(0);
+		
 		int vertexShader = Shapes.loadShader(mContext, GLES20.GL_VERTEX_SHADER, R.raw.vs_point);
 		int fragmentShader = Shapes.loadShader(mContext, GLES20.GL_FRAGMENT_SHADER, R.raw.ps_point);
 		
@@ -66,6 +79,8 @@ public class Light {
 		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mMMatrix, 0, mLightPosInModelSpace, 0);
 		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mVMatrix, 0, mLightPosInWorldSpace, 0);
 		
+//		GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false, 0, mVertices);
+//		GLES20.glEnableVertexAttribArray(maPositionHandle);
 		GLES20.glVertexAttrib3f(maPositionHandle, mLightPosInModelSpace[0], mLightPosInModelSpace[1], mLightPosInModelSpace[2]);
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
 		
@@ -74,7 +89,7 @@ public class Light {
 		GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, mProjMatrix, 0);
 
 		//Draw the light
-		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 2);
+		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
     }
 	
     public Light reset() {
