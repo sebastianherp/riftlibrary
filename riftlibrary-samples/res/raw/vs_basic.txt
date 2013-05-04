@@ -1,11 +1,17 @@
 uniform mat4 uMMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uPMatrix;
+
 attribute vec3 aNormal;
 attribute vec4 aPosition;
 varying vec3 vNormal;
+varying vec3 vEyeNormal;
+varying vec3 vPosition;
 
 void main() {
+	mat4 uMVMatrix = uVMatrix * uMMatrix;
+	vPosition = vec3(uMVMatrix * aPosition);
+	vEyeNormal = vec3(uMVMatrix * vec4(aNormal, 0.0));	
 	vNormal = aNormal;
-	gl_Position = uPMatrix * uVMatrix * uMMatrix * aPosition; 
+	gl_Position = uPMatrix * uMVMatrix * aPosition; 
 }

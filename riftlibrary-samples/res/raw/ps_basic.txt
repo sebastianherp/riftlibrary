@@ -1,7 +1,19 @@
 precision mediump float;
-varying vec3 vNormal;
+uniform vec3 uLightPos;
+
 uniform samplerCube sTexture;
 
+varying vec3 vEyeNormal;
+varying vec3 vNormal;
+varying vec3 vPosition;
+
 void main() {
-	gl_FragColor = textureCube(sTexture, vNormal);
+	float distance = length(uLightPos - vPosition);
+	vec3 lightVec = normalize(uLightPos - vPosition);
+	float diffuse = max(dot(vEyeNormal, lightVec), 0.3);
+	
+	// attenuation
+	diffuse = diffuse * (1.0 / (1.0 + (0.000005 * distance * distance)));
+
+	gl_FragColor = textureCube(sTexture, vNormal) * diffuse;
 }

@@ -26,9 +26,12 @@ public class Shapes {
     private ShortBuffer mIndices;
     private int mNumIndices;
     
+    private boolean mIsLight = false;
+    
     private int	mProgram,
 		maPositionHandle,
 		maNormalHandle,
+    	muLightPosHandle,
 		muPMatrixHandle,
 		muMMatrixHandle,
 		muVMatrixHandle,
@@ -38,54 +41,36 @@ public class Shapes {
 
 	private float[] mMMatrix = new float[16];
 	private float[] mMVPMatrix = new float[16];
-    
-	private final String vertexShaderCode =
-		"uniform mat4 uMMatrix;	\n" +
-		"uniform mat4 uVMatrix;	\n" +
-		"uniform mat4 uPMatrix;	\n" +
-		"attribute vec3 aNormal;	\n" +
-		"attribute vec4 aPosition;	\n" +
-		"varying vec3 vNormal;		\n" +
-		"void main(){				\n" +
-		"	vNormal = aNormal;		\n" +
-		"	gl_Position = uPMatrix * uVMatrix * uMMatrix * aPosition;\n" + // * uVMatrix * uPMatrix 
-		"}							\n";
-
-	private final String fragmentShaderCode =
-		"precision mediump float;	\n" +
-		"varying vec3 vNormal;		\n" +
-		"uniform samplerCube sTexture;		\n" +
-		"void main(){				\n" +
-		"	gl_FragColor = textureCube(sTexture, vNormal);	\n" +
-		//"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n" +
-		"}							\n";
-
+	private final float[] mLightPosInEyeSpace = new float[4];
+	
 	public Shapes(Context context) {
 		mContext = context;
 	}
 
 	public static Shapes Floor(Context context, float scale) {
 		Shapes shape = new Shapes(context);
-		return shape.genFloor(scale);
-	}
-	
-	public Shapes genFloor(float scale) {
-		mTextureId = createSkyTextureCubemap();
-		return genCube(scale);
+		shape.genCube(scale);
+		shape.createSkyTextureCubemap();
+		shape.init();
+		
+		return shape;
 	}
 	
 	public static Shapes ColorCube(Context context, float scale) {
 		Shapes shape = new Shapes(context);
-		return shape.genColorCube(scale);
+		shape.genCube(scale);
+		shape.createSimpleTextureCubemap();
+		shape.init();
+		
+		return shape;
 	}
 	
-	public Shapes genColorCube(float scale) {
-		mTextureId = createSimpleTextureCubemap();
-		return genCube(scale);
-	}
-    
 	
-	private Shapes genCube(float scale) {
+//	public Shapes genLight() {
+//		
+//	}
+	
+	private void genCube(float scale) {
         int i;
         int numVertices = 24;
         int numIndices = 36;
@@ -208,8 +193,7 @@ public class Shapes {
         mIndices.put(cubeIndices).position(0);
         mNumIndices = numIndices;
         
-        init();
-        return this;              
+        
     }
 	
 	private int createSimpleTextureCubemap( )
@@ -271,6 +255,7 @@ public class Shapes {
         GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST );
         GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST );
 
+        mTextureId = textureId[0];        
         return textureId[0];
     }
 	
@@ -325,14 +310,14 @@ public class Shapes {
         GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST );
         GLES20.glTexParameteri ( GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST );
 
+        mTextureId = textureId[0];
         return textureId[0];
     }	
-	
+
 	private void init() {
 		
-		
-		int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, R.raw.vs_basic);
-		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, R.raw.ps_basic);
+		int vertexShader = loadShader(mContext, GLES20.GL_VERTEX_SHADER, R.raw.vs_basic);
+		int fragmentShader = loadShader(mContext, GLES20.GL_FRAGMENT_SHADER, R.raw.ps_basic);
 		
 		mProgram = GLES20.glCreateProgram();
 		GLES20.glAttachShader(mProgram, vertexShader);
@@ -345,7 +330,7 @@ public class Shapes {
 		muMMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMMatrix");
 		muVMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uVMatrix");
 		muPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uPMatrix");
-		
+		muLightPosHandle = GLES20.glGetUniformLocation(mProgram, "uLightPos");
 		msSamplerHandle = GLES20.glGetUniformLocation(mProgram, "sTexture");
 		
 		Matrix.setIdentityM(mMMatrix, 0);
@@ -380,12 +365,17 @@ public class Shapes {
     	return mMMatrix;
     }
                     
+    public void setLight(float[] lightPosInEyeSpace) {
+    	mLightPosInEyeSpace[0] = lightPosInEyeSpace[0];
+    	mLightPosInEyeSpace[1] = lightPosInEyeSpace[1];
+    	mLightPosInEyeSpace[2] = lightPosInEyeSpace[2];
+    	mLightPosInEyeSpace[3] = lightPosInEyeSpace[3];
+    }
 
     public void draw(float[] mVMatrix, float[] mProjMatrix) {
 		//Add program
 		GLES20.glUseProgram(mProgram);
 		
-		//Prepare the cube data
 		GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false, 0, mVertices);
 		GLES20.glEnableVertexAttribArray(maPositionHandle);
 		GLES20.glVertexAttribPointer(maNormalHandle, 3, GLES20.GL_FLOAT, false, 0, mNormals);
@@ -399,8 +389,10 @@ public class Shapes {
         GLES20.glUniformMatrix4fv(muMMatrixHandle, 1, false, mMMatrix, 0);
         GLES20.glUniformMatrix4fv(muVMatrixHandle, 1, false, mVMatrix, 0);
 		GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, mProjMatrix, 0);
+		
+		GLES20.glUniform3f(muLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
 
-		//Draw the cube
+		//Draw the shape
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, mNumIndices, GLES20.GL_UNSIGNED_SHORT, mIndices);
     }
 
@@ -419,11 +411,11 @@ public class Shapes {
     	return this;
     }
     
-    public int loadShader(int type, int resourceID) {
+    public static int loadShader(Context context, int type, int resourceID) {
     	StringBuffer shader = new StringBuffer();
     	
     	try {
-	    	InputStream is = mContext.getResources().openRawResource(resourceID);
+	    	InputStream is = context.getResources().openRawResource(resourceID);
 	    	BufferedReader br = new BufferedReader(new InputStreamReader(is));
 	    	String read = br.readLine();
 			while (read != null) {

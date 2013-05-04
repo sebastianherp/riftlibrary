@@ -1,0 +1,10 @@
+uniform mat4 uMMatrix;
+uniform mat4 uVMatrix;
+uniform mat4 uPMatrix;
+
+attribute vec4 aPosition;
+
+void main() {
+	gl_Position = uPMatrix * uVMatrix * uMMatrix * aPosition;
+	gl_PointSize = 5.0; 
+}

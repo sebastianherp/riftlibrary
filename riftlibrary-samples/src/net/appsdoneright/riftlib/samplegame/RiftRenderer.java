@@ -9,6 +9,7 @@ import net.appsdoneright.riftlib.util.RiftHandler;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class RiftRenderer implements Renderer, RiftHandler {
@@ -21,6 +22,7 @@ public class RiftRenderer implements Renderer, RiftHandler {
     private Shapes mFloor;
     private Shapes mCube;
     private Shapes mCube2;
+    private Light mLight;   
     
     private RiftCamera mCamera;
     
@@ -57,6 +59,8 @@ public class RiftRenderer implements Renderer, RiftHandler {
         
         mCube = Shapes.ColorCube(mContext, 1.0f).rotate(-40, 1, -1, 0).translate(0, 1.0f, 0);
         mCube2 = Shapes.ColorCube(mContext, 2.0f).translate(-3f, 1.0f, 0.0f);
+        
+        mLight = new Light(mContext);
         
         mCamera = new RiftCamera(RiftCamera.PLAYER_IPD, RiftCamera.PLAYER_EYE_HEIGHT, RiftCamera.CAMERA_FOV, 1);
         mCamera.mPosZ = 10;
@@ -136,6 +140,15 @@ public class RiftRenderer implements Renderer, RiftHandler {
     
     private void updateScene() {
     	mCube.rotate(1.5f, 6f, 2.7f, 3.5f);
+    	mCube2.rotate(-0.3f, 3f, 2.1f, 0.5f);
+
+    	long time = SystemClock.uptimeMillis() % 10000L;        
+        float angleInDegrees = (360.0f / 10000.0f) * ((int) time); 
+    	mLight.reset().translate(-1.5f, 0, 0f).rotate(angleInDegrees, 0, 1, 0).translate(0f, 2.8f, -3f);
+   	
+    	mCube.setLight(mLight.getLight());
+    	mCube2.setLight(mLight.getLight());
+    	mFloor.setLight(mLight.getLight());
     }
     
     private int mTextureWidth, mTextureHeight;
@@ -192,6 +205,8 @@ public class RiftRenderer implements Renderer, RiftHandler {
     	GLES20.glEnable(GLES20.GL_DEPTH_TEST);
     	GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
+        
+        mLight.draw(VMatrix, PMatrix);
         
         mCube.draw(VMatrix, PMatrix);
         mCube2.draw(VMatrix, PMatrix);
