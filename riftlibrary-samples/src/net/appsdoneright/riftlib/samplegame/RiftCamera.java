@@ -31,22 +31,26 @@ public class RiftCamera {
 	public void update() {
 		// replace with rotation matrix from quaternion
 		//Matrix.setRotateEulerM(mVMatrix, 0, mPitch, mYaw, mRoll);
-		Matrix.setRotateM(mVMatrix, 0, mYaw, 0, 1, 0);
-		Matrix.rotateM(mVMatrix, 0, mPitch, 1, 0, 0);
-		Matrix.rotateM(mVMatrix, 0, mRoll, 0, 0, 1);
 
-		Matrix.multiplyMM(mVMatrix, 0, mHMatrix, 0, mVMatrix, 0);
-		
-		Matrix.translateM(mVMatrix, 0, -mPosX, -mPosY, -mPosZ);
-		
-		float cosAngle = (float)Math.cos(mYaw / 180.0 * Math.PI);
-    	float singAngle = (float)Math.sin(mYaw / 180.0 * Math.PI);
-		
+
+		// rotate body
+		//Matrix.rotateM(mVMatrixRight, 0, mPitch, 1, 0, 0);
+		//Matrix.rotateM(mVMatrixRight, 0, mRoll, 0, 0, 1);
+
 		// left eye
-		Matrix.translateM(mVMatrixLeft, 0, mVMatrix, 0, -cosAngle * mIPD, -mEyeHeight, -singAngle * mIPD);
-		// right eye
-		Matrix.translateM(mVMatrixRight, 0, mVMatrix, 0, cosAngle * mIPD, -mEyeHeight, singAngle * mIPD);
+		Matrix.setIdentityM(mVMatrixLeft, 0);
+		Matrix.translateM(mVMatrixLeft, 0, -mIPD, 0, 0); // eye offset
+		Matrix.rotateM(mVMatrixLeft, 0, mYaw, 0, 1, 0); // rotate body
+		Matrix.multiplyMM(mVMatrixLeft, 0, mHMatrix, 0, mVMatrixLeft, 0); // rotate head
+		Matrix.translateM(mVMatrixLeft, 0, mVMatrixLeft, 0, -mPosX, -mPosY - mEyeHeight, -mPosZ); // move body
 
+		// right eye
+		Matrix.setIdentityM(mVMatrixRight, 0);
+		Matrix.translateM(mVMatrixRight, 0, +mIPD, 0, 0); // eye offset
+		Matrix.rotateM(mVMatrixRight, 0, mYaw, 0, 1, 0); // rotate body
+		Matrix.multiplyMM(mVMatrixRight, 0, mHMatrix, 0, mVMatrixRight, 0); // rotate head
+		Matrix.translateM(mVMatrixRight, 0, mVMatrixRight, 0, -mPosX, -mPosY - mEyeHeight, -mPosZ); // move body
+		
 	}
 	
 	public void setHeadOrientation(Quaternion q) {

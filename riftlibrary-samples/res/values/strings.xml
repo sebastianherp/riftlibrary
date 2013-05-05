@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Oculus Rift Test</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="app_name">Riftlib Sample</string>
+    
+    <string name="function_not_implemented">Not implemented yet</string>
+    
+    <string name="menu_reset_view">Reset View</string>
+    <string name="menu_enable_fov_ipd">Enable FOV/IPD changes</string>
 
 </resources>

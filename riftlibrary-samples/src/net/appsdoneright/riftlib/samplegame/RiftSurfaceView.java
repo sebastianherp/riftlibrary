@@ -8,6 +8,7 @@ public class RiftSurfaceView extends GLSurfaceView {
 
 	private final RiftRenderer mRenderer;
     private final float SCREEN_DENSITY;
+    private boolean mFOVIPDenabled = false;
 	
 	public RiftSurfaceView(Context context) {
 		super(context);
@@ -27,6 +28,14 @@ public class RiftSurfaceView extends GLSurfaceView {
 	
 	public RiftRenderer getRenderer() {
 		return mRenderer;
+	}
+	
+	public boolean isFOVIPDenabled() {
+		return mFOVIPDenabled;
+	}
+	
+	public void setFOVIPDenabled(boolean enabled) {
+		mFOVIPDenabled = enabled;
 	}
 	
     private float mPreviousX1;
@@ -83,19 +92,21 @@ public class RiftSurfaceView extends GLSurfaceView {
                 		processTouch = true;
                 	}
                 	if(processTouch) {
-                		if (x < getWidth() / 2) {
-                        	// pointer in left half
-                        	mRenderer.mdPosY += (dx / 100f * SCREEN_DENSITY);
-                        	mRenderer.mdPosX += (dy / 100f * SCREEN_DENSITY);
-                		} else {
-                			// pointer in right half
-                        	if (y < getHeight() / 2) {
+                		if(mFOVIPDenabled) {
+	                		if (x < getWidth() / 2) {
+                        		mRenderer.mdFOV += (dx / 10f / SCREEN_DENSITY);
+	                		} else {
                         		mRenderer.mIPD += (dx / 1000f * SCREEN_DENSITY);
-                        		mRenderer.mdFOV += (dy / 10f / SCREEN_DENSITY);
-                        	} else {
+	                		}
+                		} else {
+	                		if (x < getWidth() / 2) {
+	                        	// pointer in left half
+	                        	mRenderer.mdPosY += (dx / 100f * SCREEN_DENSITY);
+	                        	mRenderer.mdPosX += (dy / 100f * SCREEN_DENSITY);
+	                		} else {
+	                			// pointer in right half
                         		mRenderer.mdAngle += (dx / 10f * SCREEN_DENSITY);
-                        	}
-                        	
+	                		}
                 		}
                 	}
                 }
